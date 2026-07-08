@@ -39,11 +39,11 @@
   "filePath" : "sql/h2.sql"
 }, {
   "contentPath" : "vue/index",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/index.vue"
+  "filePath" : "shop-admin/src/views/infra/demo/index.vue"
 }, {
   "contentPath" : "vue/CategoryForm",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/CategoryForm.vue"
+  "filePath" : "shop-admin/src/views/infra/demo/CategoryForm.vue"
 }, {
   "contentPath" : "ts/index",
-  "filePath" : "yudao-ui-admin-vue3/src/api/infra/demo/index.ts"
+  "filePath" : "shop-admin/src/api/infra/demo/index.ts"
 } ]

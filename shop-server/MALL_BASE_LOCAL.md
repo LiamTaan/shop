@@ -4,9 +4,9 @@
 
 ## 项目路径
 
-- 后端：`D:\user\work_space_shop\ruoyi-vue-pro`
-- 管理端：`D:\user\work_space_shop\yudao-ui-admin-vue3`
-- 移动端：`D:\user\work_space_shop\yudao-ui-mall-uniapp`
+- 后端：`D:\user\work_space_shop\shop-server`
+- 管理端：`D:\user\work_space_shop\shop-admin`
+- 移动端：`D:\user\work_space_shop\shop-mobile`
 
 ## 本地端口
 
@@ -28,7 +28,7 @@
 在后端目录运行：
 
 ```powershell
-cd D:\user\work_space_shop\ruoyi-vue-pro
+cd D:\user\work_space_shop\shop-server
 node scripts\check-mall-base.js
 ```
 
@@ -57,14 +57,14 @@ node scripts\check-mall-base.js
 后端：
 
 ```powershell
-cd D:\user\work_space_shop\ruoyi-vue-pro
+cd D:\user\work_space_shop\shop-server
 mvn -pl yudao-server -am -DskipTests package
 ```
 
 管理端：
 
 ```powershell
-cd D:\user\work_space_shop\yudao-ui-admin-vue3
+cd D:\user\work_space_shop\shop-admin
 pnpm install
 pnpm dev
 ```
@@ -72,7 +72,7 @@ pnpm dev
 移动端 H5：
 
 ```powershell
-cd D:\user\work_space_shop\yudao-ui-mall-uniapp
+cd D:\user\work_space_shop\shop-mobile
 pnpm install
 pnpm dev:h5
 ```
@@ -82,21 +82,21 @@ pnpm dev:h5
 后端：
 
 ```powershell
-cd D:\user\work_space_shop\ruoyi-vue-pro
+cd D:\user\work_space_shop\shop-server
 mvn -pl yudao-server -am -DskipTests package
 ```
 
 管理端：
 
 ```powershell
-cd D:\user\work_space_shop\yudao-ui-admin-vue3
+cd D:\user\work_space_shop\shop-admin
 pnpm build:local
 ```
 
 移动端 H5：
 
 ```powershell
-cd D:\user\work_space_shop\yudao-ui-mall-uniapp
+cd D:\user\work_space_shop\shop-mobile
 pnpm build:h5
 ```
 
@@ -105,14 +105,14 @@ pnpm build:h5
 商城相关表结构由当前后端 DO 生成：
 
 ```powershell
-cd D:\user\work_space_shop\ruoyi-vue-pro
+cd D:\user\work_space_shop\shop-server
 node scripts\generate-mall-schema.js
 ```
 
 本地商城种子数据在：
 
 ```text
-D:\user\work_space_shop\ruoyi-vue-pro\sql\mysql\mall-bootstrap\02-mall-local-bootstrap-data.sql
+D:\user\work_space_shop\shop-server\sql\mysql\02-mall-local-bootstrap-data.sql
 ```
 
 导入含中文的 SQL 时必须走 UTF-8 文件，不要在 PowerShell、cmd 或 Git Bash 中用 `echo`、here-string、管道内联中文 SQL。
@@ -120,7 +120,7 @@ D:\user\work_space_shop\ruoyi-vue-pro\sql\mysql\mall-bootstrap\02-mall-local-boo
 推荐导入方式：
 
 ```powershell
-docker cp D:\user\work_space_shop\ruoyi-vue-pro\sql\mysql\mall-bootstrap\02-mall-local-bootstrap-data.sql rural-helper-mysql:/tmp/02-mall-local-bootstrap-data.sql
+docker cp D:\user\work_space_shop\shop-server\sql\mysql\02-mall-local-bootstrap-data.sql rural-helper-mysql:/tmp/02-mall-local-bootstrap-data.sql
 docker exec -e MYSQL_PWD=123456 rural-helper-mysql sh -c "mysql --default-character-set=utf8mb4 -uroot ruoyi-vue-pro < /tmp/02-mall-local-bootstrap-data.sql"
 ```
 

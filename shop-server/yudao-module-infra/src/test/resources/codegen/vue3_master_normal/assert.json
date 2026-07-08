@@ -51,23 +51,17 @@
   "filePath" : "sql/h2.sql"
 }, {
   "contentPath" : "vue/index",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/index.vue"
+  "filePath" : "shop-admin/src/views/infra/demo/index.vue"
 }, {
   "contentPath" : "vue/StudentForm",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/StudentForm.vue"
+  "filePath" : "shop-admin/src/views/infra/demo/StudentForm.vue"
 }, {
   "contentPath" : "vue/StudentContactForm",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/components/StudentContactForm.vue"
+  "filePath" : "shop-admin/src/views/infra/demo/components/StudentContactForm.vue"
 }, {
   "contentPath" : "vue/StudentTeacherForm",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/components/StudentTeacherForm.vue"
-}, {
-  "contentPath" : "vue/StudentContactList",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/components/StudentContactList.vue"
-}, {
-  "contentPath" : "vue/StudentTeacherList",
-  "filePath" : "yudao-ui-admin-vue3/src/views/infra/demo/components/StudentTeacherList.vue"
+  "filePath" : "shop-admin/src/views/infra/demo/components/StudentTeacherForm.vue"
 }, {
   "contentPath" : "ts/index",
-  "filePath" : "yudao-ui-admin-vue3/src/api/infra/demo/index.ts"
+  "filePath" : "shop-admin/src/api/infra/demo/index.ts"
 } ]
