@@ -1,60 +1,60 @@
-# 商城底座
+# 商城后端服务
 
-这是一个面向商城项目的后端底座，基于 Spring Boot、MyBatis-Plus、MySQL、Redis 构建，保留商城上线所需的核心链路。
+这是当前工作区的后端主服务，面向商城业务提供管理端、用户端和基础设施能力。
 
-## 当前定位
+## 模块定位
 
-- 管理后台接口：用户、角色、菜单、租户、基础设施、文件、字典、日志等基础能力。
-- 商城业务接口：商品、营销、交易、订单、售后、会员、统计等商城能力。
-- 支付链路：支付应用、支付渠道、支付订单、退款订单、回调通知等能力保留。
-- 微信链路：微信公众号、微信小程序、微信登录/授权相关配置入口保留。
-- IM 链路：IM 模块和 WebSocket 配置保留，默认单机发送，集群部署时再补消息发送配置。
-- AI 模块：代码模块保留，默认不启用；模型密钥建议放到独立配置或环境变量中。
+- 系统能力：用户、角色、菜单、租户、字典、日志、文件、消息等基础模块
+- 商城能力：商品、分类、SKU、营销、购物车、订单、售后、会员、支付等业务模块
+- 对外能力：管理后台接口、移动端接口、WebSocket、文件服务
 
-## 配置说明
+## 目录说明
 
-主要配置文件位于：
+- `yudao-server`：后端启动入口
+- `yudao-module-system`：系统管理模块
+- `yudao-module-member`：会员模块
+- `yudao-module-mall`：商城核心模块
+- `yudao-module-pay`：支付模块
+- `yudao-module-infra`：基础设施模块
+- `script`：部署、Docker、辅助脚本
+- `sql`：数据库脚本
+
+## 配置文件
+
+主要配置位于：
 
 - `yudao-server/src/main/resources/application.yaml`
 - `yudao-server/src/main/resources/application-local.yaml`
 - `yudao-server/src/main/resources/application-dev.yaml`
-- `script/docker/docker-compose.yml`
-- `script/docker/docker.env`
 
-本仓库已清理演示域名、示例密钥、未启用模块的默认连接配置。上线前需要按实际环境补齐：
+按实际环境重点检查：
 
-- MySQL / Redis 连接。
-- 后端公网域名和管理端域名。
-- 支付回调公网 HTTPS 地址。
-- 微信公众号 AppId / Secret。
-- 微信小程序 AppId / Secret。
-- 支付渠道商户号、证书、私钥、回调验签配置。
-- 文件存储、短信、地图、物流查询等第三方服务密钥。
+- MySQL / Redis 连接
+- 文件存储配置
+- 短信、邮件、地图等第三方配置
+- 微信公众号 / 小程序配置
+- 支付渠道与回调地址
 
 ## 本地启动
 
-1. 准备 MySQL 和 Redis。
-2. 导入项目数据库脚本。
-3. 修改 `application-local.yaml` 中的数据库、Redis、微信、支付等本地配置。
-4. 启动 `yudao-server` 模块。
+1. 准备 MySQL、Redis。
+2. 导入 `sql/mysql` 下所需脚本。
+3. 修改本地环境配置。
+4. 启动 `yudao-server`。
 
-默认本地端口：
+默认约定：
 
-- 后端服务：`48080`
+- 后端端口：`48080`
 - 管理端接口前缀：`/admin-api`
-- 商城端接口前缀：`/app-api`
+- 用户端接口前缀：`/app-api`
 - WebSocket：`/infra/ws`
 
-## Docker
+## 部署说明
 
-Docker 编排文件位于 `script/docker`，当前只保留 MySQL、Redis、后端服务。管理端和商城端建议按实际部署方式单独构建并接入 Nginx。
+- `script/docker` 中提供基础 Docker 编排文件
+- 生产环境请替换所有示例配置、默认口令和测试密钥
+- 多实例部署前请补齐缓存、消息发送和回调域名配置
 
-## 上线检查
+## 备注
 
-- 生产环境不要使用默认数据库密码。
-- 生产环境必须配置 HTTPS 支付回调域名。
-- 微信小程序发布前必须配置合法请求域名、业务域名和 AppId。
-- API 加密默认关闭，如需开启，需要后端和前端同时配置密钥。
-- AI 模块默认不启用，启用前应将密钥放入环境变量或独立配置文件。
-- IM/WebSocket 默认单机发送，集群部署时需要切换发送器并补 Redis/MQ 配置。
-
+当前目录名称沿用历史结构，文档说明以当前商城项目为准。
