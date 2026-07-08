@@ -1,0 +1,171 @@
+{
+  "name": "商城",
+  "appid": "",
+  "description": "基于 uni-app + Vue3 技术驱动的在线商城系统，内含诸多功能与丰富的活动，期待您的使用和反馈。",
+  "versionName": "2026.06",
+  "versionCode": "183",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueCompiler": "uni-app",
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3,
+    "nvueLaunchMode": "fast",
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "safearea": {
+      "bottom": {
+        "offset": "none"
+      }
+    },
+    "modules": {
+      "Payment": {},
+      "Share": {},
+      "VideoPlayer": {},
+      "OAuth": {}
+    },
+    "distribute": {
+      "android": {
+        "permissions": [
+          "<uses-feature android:name=\"android.hardware.camera\"/>",
+          "<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>",
+          "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.CALL_PHONE\"/>",
+          "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+          "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+          "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\"/>",
+          "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+          "<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+          "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>"
+        ],
+        "minSdkVersion": 21,
+        "schemes": "shopro"
+      },
+      "ios": {
+        "urlschemewhitelist": ["baidumap", "iosamap"],
+        "dSYMs": false,
+        "privacyDescription": {
+          "NSPhotoLibraryUsageDescription": "需要同意访问您的相册选取图片才能完善该条目",
+          "NSPhotoLibraryAddUsageDescription": "需要同意访问您的相册才能保存该图片",
+          "NSCameraUsageDescription": "需要同意访问您的摄像头拍摄照片才能完善该条目"
+        },
+        "urltypes": "shopro",
+        "capabilities": {
+          "entitlements": {
+            "com.apple.developer.associated-domains": []
+          }
+        },
+        "idfa": false
+      },
+      "sdkConfigs": {
+        "oauth": {
+          "weixin": {
+            "appid": "",
+            "UniversalLinks": ""
+          }
+        },
+        "payment": {
+          "weixin": {
+            "__platform__": ["ios", "android"],
+            "appid": "",
+            "UniversalLinks": ""
+          },
+          "alipay": {
+            "__platform__": ["ios", "android"]
+          }
+        },
+        "share": {
+          "weixin": {
+            "appid": "",
+            "UniversalLinks": ""
+          }
+        }
+      },
+      "orientation": ["portrait-primary"],
+      "splashscreen": {
+        "androidStyle": "common",
+        "iosStyle": "common",
+        "useOriginalMsgbox": true
+      },
+      "icons": {
+        "android": {
+          "hdpi": "unpackage/res/icons/72x72.png",
+          "xhdpi": "unpackage/res/icons/96x96.png",
+          "xxhdpi": "unpackage/res/icons/144x144.png",
+          "xxxhdpi": "unpackage/res/icons/192x192.png"
+        },
+        "ios": {
+          "appstore": "unpackage/res/icons/1024x1024.png",
+          "ipad": {
+            "app": "unpackage/res/icons/76x76.png",
+            "app@2x": "unpackage/res/icons/152x152.png",
+            "notification": "unpackage/res/icons/20x20.png",
+            "notification@2x": "unpackage/res/icons/40x40.png",
+            "proapp@2x": "unpackage/res/icons/167x167.png",
+            "settings": "unpackage/res/icons/29x29.png",
+            "settings@2x": "unpackage/res/icons/58x58.png",
+            "spotlight": "unpackage/res/icons/40x40.png",
+            "spotlight@2x": "unpackage/res/icons/80x80.png"
+          },
+          "iphone": {
+            "app@2x": "unpackage/res/icons/120x120.png",
+            "app@3x": "unpackage/res/icons/180x180.png",
+            "notification@2x": "unpackage/res/icons/40x40.png",
+            "notification@3x": "unpackage/res/icons/60x60.png",
+            "settings@2x": "unpackage/res/icons/58x58.png",
+            "settings@3x": "unpackage/res/icons/87x87.png",
+            "spotlight@2x": "unpackage/res/icons/80x80.png",
+            "spotlight@3x": "unpackage/res/icons/120x120.png"
+          }
+        }
+      }
+    }
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": true,
+      "minified": true,
+      "postcss": true
+    },
+    "optimization": {
+      "subPackages": true
+    },
+    "plugins": {},
+    "lazyCodeLoading": "requiredComponents",
+    "usingComponents": {},
+    "permission": {},
+    "requiredPrivateInfos": ["chooseAddress"]
+  },
+  "h5": {
+    "template": "index.html",
+    "router": {
+      "mode": "history",
+      "base": "/"
+    },
+    "sdkConfigs": {
+      "maps": {}
+    },
+    "async": {
+      "timeout": 20000
+    },
+    "title": "商城",
+    "optimization": {
+      "treeShaking": {
+        "enable": true
+      }
+    }
+  },
+  "vueVersion": "3",
+  "locale": "zh-Hans",
+  "fallbackLocale": "zh-Hans"
+}
