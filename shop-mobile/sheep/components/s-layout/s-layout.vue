@@ -200,6 +200,7 @@
   uni.showShareMenu({
     withShareTicket: true,
     menus: ['shareAppMessage', 'shareTimeline'],
+    fail: () => {},
   });
   // 微信小程序分享好友
   onShareAppMessage(() => {

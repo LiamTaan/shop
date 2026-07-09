@@ -2,16 +2,16 @@ import sheep from '@/sheep';
 import { formatImageUrlProtocol, getWxaQrcode } from './index';
 
 const groupon = async (poster) => {
-  debugger;
   const width = poster.width;
   const userInfo = sheep.$store('user').userInfo;
-  const wxa_qrcode = await getWxaQrcode(poster.shareInfo.path, poster.shareInfo.query);
-  return [
-    {
+  const wxaQrcode = await getWxaQrcode(poster.shareInfo.path, poster.shareInfo.query);
+  const posterItems = [];
+  const grouponBg = sheep.$store('app').platform.share.posterInfo.groupon_bg;
+
+  if (grouponBg) {
+    posterItems.push({
       type: 'image',
-      src: formatImageUrlProtocol(
-        sheep.$url.cdn(sheep.$store('app').platform.share.posterInfo.groupon_bg),
-      ),
+      src: formatImageUrlProtocol(sheep.$url.cdn(grouponBg)),
       css: {
         width,
         position: 'fixed',
@@ -20,7 +20,10 @@ const groupon = async (poster) => {
         left: '0',
         zIndex: -1,
       },
-    },
+    });
+  }
+
+  posterItems.push(
     {
       type: 'text',
       text: userInfo.nickname,
@@ -109,7 +112,7 @@ const groupon = async (poster) => {
     // #ifdef MP-WEIXIN
     {
       type: 'image',
-      src: wxa_qrcode,
+      src: wxaQrcode,
       css: {
         position: 'fixed',
         left: width * 0.75,
@@ -119,7 +122,9 @@ const groupon = async (poster) => {
       },
     },
     // #endif
-  ];
+  );
+
+  return posterItems;
 };
 
 export default groupon;

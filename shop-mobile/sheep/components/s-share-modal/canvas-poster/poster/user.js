@@ -1,15 +1,19 @@
 import sheep from '@/sheep';
 import { formatImageUrlProtocol, getWxaQrcode } from './index';
-import { measureTextWidth } from '@/utils/textUtils'; // 引入新封装的方法
+import { measureTextWidth } from '@/utils/textUtils';
+
 const user = async (poster) => {
   const width = poster.width;
   const userInfo = sheep.$store('user').userInfo;
-  const wxa_qrcode = await getWxaQrcode(poster.shareInfo.path, poster.shareInfo.query);
-  const widthNickName = measureTextWidth(userInfo.nickname, 14); // 使用新方法
-  return [
-    {
+  const wxaQrcode = await getWxaQrcode(poster.shareInfo.path, poster.shareInfo.query);
+  const widthNickName = measureTextWidth(userInfo.nickname, 14);
+  const posterItems = [];
+  const userBg = sheep.$store('app').platform.share.posterInfo.user_bg;
+
+  if (userBg) {
+    posterItems.push({
       type: 'image',
-      src: formatImageUrlProtocol(sheep.$url.cdn(sheep.$store('app').platform.share.posterInfo.user_bg)),
+      src: formatImageUrlProtocol(sheep.$url.cdn(userBg)),
       css: {
         width,
         position: 'fixed',
@@ -18,7 +22,10 @@ const user = async (poster) => {
         left: '0',
         zIndex: -1,
       },
-    },
+    });
+  }
+
+  posterItems.push(
     {
       type: 'text',
       text: userInfo.nickname,
@@ -29,7 +36,7 @@ const user = async (poster) => {
         fontFamily: 'sans-serif',
         position: 'fixed',
         top: width * 0.4,
-        left: (width-widthNickName) / 2,
+        left: (width - widthNickName) / 2,
       },
     },
     {
@@ -59,7 +66,7 @@ const user = async (poster) => {
     // #ifdef MP-WEIXIN
     {
       type: 'image',
-      src: wxa_qrcode,
+      src: wxaQrcode,
       css: {
         position: 'fixed',
         left: width * 0.35,
@@ -69,7 +76,9 @@ const user = async (poster) => {
       },
     },
     // #endif
-  ];
+  );
+
+  return posterItems;
 };
 
 export default user;

@@ -2,7 +2,7 @@
 <template>
 	<view :style="[bgStyle, { marginLeft: `${data.space}px` }]">
 		<uni-grid :showBorder="Boolean(data.border)" :column="data.column">
-			<uni-grid-item v-for="(item, index) in data.list" :key="index" >
+			<uni-grid-item v-for="(item, index) in menuList" :key="index" >
 				<view class="grid-item-box ss-flex ss-flex-col ss-row-center ss-col-center" @tap="sheep.$router.go(item.url)">
 					<view class="img-box">
 						<view class="tag-box" v-if="item.badge.show"
@@ -28,9 +28,12 @@
 </template>
 
 <script setup>
+	import CategoryApi from '@/sheep/api/product/category';
 	import sheep from '@/sheep';
 	import {
-		computed
+		computed,
+		ref,
+		watch
 	} from 'vue';
 
 	const props = defineProps({
@@ -46,6 +49,52 @@
 		},
 	});
 	// 设置背景样式
+	const categoryPicMap = ref({});
+
+	const extractCategoryId = (item = {}) => {
+		if (item.categoryId) {
+			return Number(item.categoryId);
+		}
+		const url = item.url || '';
+		const match = url.match(/(?:\?|&)categoryId=(\d+)/);
+		return match ? Number(match[1]) : null;
+	};
+
+	const loadCategoryPics = async (list = []) => {
+		const ids = [...new Set(list.map((item) => extractCategoryId(item)).filter(Boolean))];
+		if (!ids.length) {
+			categoryPicMap.value = {};
+			return;
+		}
+		const { code, data } = await CategoryApi.getCategoryListByIds(ids.join(','));
+		if (code !== 0 || !Array.isArray(data)) {
+			return;
+		}
+		categoryPicMap.value = data.reduce((acc, item) => {
+			acc[item.id] = item.picUrl || '';
+			return acc;
+		}, {});
+	};
+
+	watch(
+		() => props.data?.list,
+		(list) => {
+			loadCategoryPics(Array.isArray(list) ? list : []);
+		},
+		{ immediate: true, deep: true },
+	);
+
+	const menuList = computed(() =>
+		(props.data?.list || []).map((item) => {
+			const categoryId = extractCategoryId(item);
+			const categoryPic = categoryId ? categoryPicMap.value[categoryId] : '';
+			return {
+				...item,
+				iconUrl: categoryPic || item.iconUrl,
+			};
+		}),
+	);
+
 	const bgStyle = computed(() => {
 		// 直接从 props.styles 解构
 		const {

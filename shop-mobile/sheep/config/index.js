@@ -1,10 +1,11 @@
 import packageInfo from '@/package.json';
 
 const { version } = packageInfo;
+const useDevBaseUrl = import.meta.env.SHOPRO_USE_DEV_BASE_URL === 'true';
 
 // 开发环境配置
 export let baseUrl;
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development' || useDevBaseUrl) {
   baseUrl = import.meta.env.SHOPRO_DEV_BASE_URL;
 } else {
   baseUrl = import.meta.env.SHOPRO_BASE_URL;

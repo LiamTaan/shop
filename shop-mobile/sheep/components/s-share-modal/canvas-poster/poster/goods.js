@@ -4,11 +4,14 @@ import { formatImageUrlProtocol, getWxaQrcode } from './index';
 const goods = async (poster) => {
   const width = poster.width;
   const userInfo = sheep.$store('user').userInfo;
-  const wxa_qrcode = await getWxaQrcode(poster.shareInfo.path, poster.shareInfo.query);
-  return [
-    {
+  const wxaQrcode = await getWxaQrcode(poster.shareInfo.path, poster.shareInfo.query);
+  const posterItems = [];
+  const goodsBg = sheep.$store('app').platform.share.posterInfo.goods_bg;
+
+  if (goodsBg) {
+    posterItems.push({
       type: 'image',
-      src: formatImageUrlProtocol(sheep.$url.cdn(sheep.$store('app').platform.share.posterInfo.goods_bg)),
+      src: formatImageUrlProtocol(sheep.$url.cdn(goodsBg)),
       css: {
         width,
         position: 'fixed',
@@ -17,7 +20,10 @@ const goods = async (poster) => {
         left: '0',
         zIndex: -1,
       },
-    },
+    });
+  }
+
+  posterItems.push(
     {
       type: 'text',
       text: userInfo.nickname,
@@ -79,10 +85,7 @@ const goods = async (poster) => {
     },
     {
       type: 'text',
-      text:
-        poster.shareInfo.poster.original_price > 0
-          ? '￥' + poster.shareInfo.poster.original_price
-          : '',
+      text: poster.shareInfo.poster.original_price > 0 ? '￥' + poster.shareInfo.poster.original_price : '',
       css: {
         position: 'fixed',
         left: width * 0.3,
@@ -109,7 +112,7 @@ const goods = async (poster) => {
     // #ifdef MP-WEIXIN
     {
       type: 'image',
-      src: wxa_qrcode,
+      src: wxaQrcode,
       css: {
         position: 'fixed',
         left: width * 0.75,
@@ -119,7 +122,9 @@ const goods = async (poster) => {
       },
     },
     // #endif
-  ];
+  );
+
+  return posterItems;
 };
 
 export default goods;

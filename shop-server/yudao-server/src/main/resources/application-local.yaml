@@ -50,7 +50,7 @@ spring:
         master:
           url: ${MASTER_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true} # MySQL Connector/J 8.X 连接
           username: ${MASTER_DATASOURCE_USERNAME:root}
-          password: ${MASTER_DATASOURCE_PASSWORD:123456}
+          password: ${MASTER_DATASOURCE_PASSWORD:TanLiMing123!}
         slave: # 模拟从库，可根据自己需要修改
           lazy: true # 开启懒加载，保证启动速度
           url: ${SLAVE_DATASOURCE_URL:${spring.datasource.dynamic.datasource.master.url}}

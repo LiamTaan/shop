@@ -3,8 +3,14 @@ import { staticUrl } from '@/sheep/config';
 
 const cdn = (url = '', cdnurl = '') => {
   if (!url) return '';
+  if (/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/static\//.test(url)) {
+    return url.replace(/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?/, '');
+  }
   if (url.indexOf('http') === 0) {
     return url;
+  }
+  if (url.indexOf('/static/') === 0 || url.indexOf('static/') === 0) {
+    return url.indexOf('/') === 0 ? url : `/${url}`;
   }
   if (cdnurl === '') {
     cdnurl = $store('app').info.cdnurl;

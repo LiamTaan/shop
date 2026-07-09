@@ -191,10 +191,10 @@ yudao:
     express:
       client: ${YUDAO_EXPRESS_CLIENT:kd_100}
       kd-niao:
-        api-key: ${YUDAO_EXPRESS_KD_NIAO_API_KEY:}
-        business-id: ${YUDAO_EXPRESS_KD_NIAO_BUSINESS_ID:}
+        api-key: ${YUDAO_EXPRESS_KD_NIAO_API_KEY:xx}
+        business-id: ${YUDAO_EXPRESS_KD_NIAO_BUSINESS_ID:xx}
         request-type: ${YUDAO_EXPRESS_KD_NIAO_REQUEST_TYPE:1002} # 免费版 1002；付费版 8001
       kd100:
-        key: ${YUDAO_EXPRESS_KD100_KEY:}
-        customer: ${YUDAO_EXPRESS_KD100_CUSTOMER:}
+        key: ${YUDAO_EXPRESS_KD100_KEY:xx}
+        customer: ${YUDAO_EXPRESS_KD100_CUSTOMER:xx}
 debug: false

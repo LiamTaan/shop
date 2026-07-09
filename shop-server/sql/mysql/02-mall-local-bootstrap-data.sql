@@ -3,8 +3,21 @@
 
 SET NAMES utf8mb4;
 
-SET @mall_image = 'http://127.0.0.1:3000/static/mall-logo.png';
+SET @mall_image = '/static/mall-logo.png';
 SET @mall_icon = '/static/mall-logo.png';
+SET @tabbar_home_icon = '/static/img/shop/tabbar/tabbar_home.png';
+SET @tabbar_home_active_icon = '/static/img/shop/tabbar/tabbar_home1.png';
+SET @tabbar_category_icon = '/static/img/shop/tabbar/tabbar_category.png';
+SET @tabbar_category_active_icon = '/static/img/shop/tabbar/tabbar_category1.png';
+SET @tabbar_cart_icon = '/static/img/shop/tabbar/tabbar_cart.png';
+SET @tabbar_cart_active_icon = '/static/img/shop/tabbar/tabbar_cart1.png';
+SET @tabbar_user_icon = '/static/img/shop/tabbar/tabbar_personal.png';
+SET @tabbar_user_active_icon = '/static/img/shop/tabbar/tabbar_personal1.png';
+SET @carousel_image_1 = '/static/mall-logo.png';
+SET @carousel_image_2 = '/static/img/shop/app/sign.png';
+SET @menu_icon_all = '/static/img/shop/tabbar/tabbar_home1.png';
+SET @menu_icon_life = '/static/img/shop/tabbar/tabbar_category1.png';
+SET @menu_icon_digital = '/static/img/shop/tabbar/tabbar_cart1.png';
 
 ALTER TABLE `promotion_diy_template`
   MODIFY COLUMN `property` longtext COLLATE utf8mb4_unicode_ci DEFAULT NULL;
@@ -130,6 +143,52 @@ SET `deleted` = b'1',
     `updater` = 'local-bootstrap'
 WHERE `id` IN (40, 41, 42);
 
+INSERT INTO `pay_app`
+  (`id`, `app_key`, `name`, `status`, `remark`, `order_notify_url`, `refund_notify_url`, `transfer_notify_url`, `creator`, `updater`, `deleted`, `tenant_id`)
+VALUES
+  (90001, 'mall-local-pay', 'Mall Local Pay', 0, 'Local bootstrap pay app', 'http://127.0.0.1:48080/app-api/pay/notify/order', 'http://127.0.0.1:48080/app-api/pay/notify/refund', 'http://127.0.0.1:48080/app-api/pay/notify/transfer', 'local-bootstrap', 'local-bootstrap', b'0', 1)
+ON DUPLICATE KEY UPDATE
+  `app_key` = VALUES(`app_key`),
+  `name` = VALUES(`name`),
+  `status` = VALUES(`status`),
+  `remark` = VALUES(`remark`),
+  `order_notify_url` = VALUES(`order_notify_url`),
+  `refund_notify_url` = VALUES(`refund_notify_url`),
+  `transfer_notify_url` = VALUES(`transfer_notify_url`),
+  `updater` = VALUES(`updater`),
+  `deleted` = b'0',
+  `tenant_id` = VALUES(`tenant_id`);
+
+INSERT INTO `pay_channel`
+  (`id`, `code`, `status`, `fee_rate`, `remark`, `app_id`, `config`, `creator`, `updater`, `deleted`, `tenant_id`)
+VALUES
+  (90011, 'mock', 0, 0, 'Local mock payment channel', 90001, '{"@class":"cn.iocoder.yudao.module.pay.framework.pay.core.client.impl.NonePayClientConfig","name":"mock-conf"}', 'local-bootstrap', 'local-bootstrap', b'0', 1),
+  (90012, 'wallet', 0, 0, 'Local wallet payment channel', 90001, '{"@class":"cn.iocoder.yudao.module.pay.framework.pay.core.client.impl.NonePayClientConfig","name":"wallet-conf"}', 'local-bootstrap', 'local-bootstrap', b'0', 1)
+ON DUPLICATE KEY UPDATE
+  `code` = VALUES(`code`),
+  `status` = VALUES(`status`),
+  `fee_rate` = VALUES(`fee_rate`),
+  `remark` = VALUES(`remark`),
+  `app_id` = VALUES(`app_id`),
+  `config` = VALUES(`config`),
+  `updater` = VALUES(`updater`),
+  `deleted` = b'0',
+  `tenant_id` = VALUES(`tenant_id`);
+
+INSERT INTO `pay_wallet_recharge_package`
+  (`id`, `name`, `pay_price`, `bonus_price`, `status`, `creator`, `updater`, `deleted`, `tenant_id`)
+VALUES
+  (90021, 'Balance Top-up 50', 5000, 0, 0, 'local-bootstrap', 'local-bootstrap', b'0', 1),
+  (90022, 'Balance Top-up 100', 10000, 1000, 0, 'local-bootstrap', 'local-bootstrap', b'0', 1)
+ON DUPLICATE KEY UPDATE
+  `name` = VALUES(`name`),
+  `pay_price` = VALUES(`pay_price`),
+  `bonus_price` = VALUES(`bonus_price`),
+  `status` = VALUES(`status`),
+  `updater` = VALUES(`updater`),
+  `deleted` = b'0',
+  `tenant_id` = VALUES(`tenant_id`);
+
 INSERT INTO `product_category`
   (`id`, `parent_id`, `name`, `pic_url`, `sort`, `status`, `creator`, `updater`, `deleted`, `tenant_id`)
 VALUES
@@ -145,6 +204,16 @@ ON DUPLICATE KEY UPDATE
   `updater` = VALUES(`updater`),
   `deleted` = b'0',
   `tenant_id` = VALUES(`tenant_id`);
+
+UPDATE `product_category`
+SET `pic_url` = CASE `id`
+    WHEN 1001 THEN @menu_icon_all
+    WHEN 1002 THEN @menu_icon_life
+    WHEN 1003 THEN @menu_icon_digital
+    ELSE `pic_url`
+  END,
+  `updater` = 'local-bootstrap'
+WHERE `id` IN (1001, 1002, 1003);
 
 INSERT INTO `product_spu`
   (`id`, `name`, `keyword`, `introduction`, `description`, `category_id`, `brand_id`, `pic_url`, `slider_pic_urls`, `sort`, `status`, `spec_type`, `price`, `market_price`, `cost_price`, `stock`, `delivery_types`, `delivery_template_id`, `give_integral`, `sub_commission_type`, `sales_count`, `virtual_sales_count`, `browse_count`, `creator`, `updater`, `deleted`, `tenant_id`)
@@ -205,6 +274,10 @@ SET @template_property = CONCAT('{"tabBar":{"theme":"orange","style":{"bgType":"
 SET @nav_cell = '{"type":"text","width":4,"height":35,"top":0,"left":2,"text":"商城","textColor":"#111111","imgUrl":"","url":"","backgroundColor":"","placeholder":"","placeholderPosition":"left","showScan":false,"borderRadius":0}';
 SET @home_property = CONCAT('{"page":{"description":"","backgroundColor":"#f5f5f5","backgroundImage":""},"navigationBar":{"bgType":"color","bgColor":"#fff","bgImg":"","styleType":"normal","showType":"always","alwaysShow":true,"mpCells":[', @nav_cell, '],"otherCells":[', @nav_cell, '],"_local":{"previewMp":true,"previewOther":false}},"components":[{"id":"SearchBar","name":"搜索框","property":{"height":32,"showScan":false,"borderRadius":16,"placeholder":"搜索商品","placeholderPosition":"left","backgroundColor":"rgb(238,238,238)","textColor":"rgb(120,120,120)","hotKeywords":["底座","联调"],"style":{"bgType":"color","bgColor":"#fff","marginBottom":8,"paddingTop":8,"paddingRight":8,"paddingBottom":8,"paddingLeft":8}}},{"id":"Carousel","name":"轮播图","property":{"type":"default","indicator":"dot","autoplay":true,"interval":3,"height":174,"items":[{"type":"img","imgUrl":"', @mall_icon, '","videoUrl":"","url":"/pages/goods/list"},{"type":"img","imgUrl":"', @mall_icon, '","videoUrl":"","url":"/pages/goods/list"}],"style":{"bgType":"color","bgColor":"#fff","marginBottom":8}}},{"id":"MenuGrid","name":"宫格导航","property":{"column":3,"space":0,"list":[{"iconUrl":"', @mall_icon, '","title":"全部商品","titleColor":"#333","subtitle":"现货上架","subtitleColor":"#999","url":"/pages/goods/list","badge":{"show":false,"text":"","textColor":"#fff","bgColor":"#FF6000"}},{"iconUrl":"', @mall_icon, '","title":"生活好物","titleColor":"#333","subtitle":"精选分类","subtitleColor":"#999","url":"/pages/goods/list?categoryId=1002","badge":{"show":false,"text":"","textColor":"#fff","bgColor":"#FF6000"}},{"iconUrl":"', @mall_icon, '","title":"数码优选","titleColor":"#333","subtitle":"新品推荐","subtitleColor":"#999","url":"/pages/goods/list?categoryId=1003","badge":{"show":false,"text":"","textColor":"#fff","bgColor":"#FF6000"}}],"style":{"bgType":"color","bgColor":"#fff","marginBottom":8,"marginLeft":8,"marginRight":8,"paddingTop":8,"paddingRight":8,"paddingBottom":8,"paddingLeft":8,"borderTopLeftRadius":8,"borderTopRightRadius":8,"borderBottomRightRadius":8,"borderBottomLeftRadius":8}}},{"id":"TitleBar","name":"标题栏","property":{"bgImgUrl":"","marginLeft":0,"textAlign":"left","title":"精选商品","description":"管理端修改商品后，移动端会读取同一份后端数据","titleSize":16,"descriptionSize":12,"titleWeight":600,"descriptionWeight":200,"titleColor":"rgba(50,50,51,1)","descriptionColor":"rgba(150,151,153,1)","height":44,"more":{"show":true,"type":"all","text":"查看更多","url":"/pages/goods/list"},"style":{"bgType":"color","bgColor":"#fff","marginLeft":8,"marginRight":8,"marginBottom":8}}},{"id":"ProductList","name":"商品栏","property":{"layoutType":"twoCol","fields":{"name":{"show":true,"color":"#000"},"price":{"show":true,"color":"#ff3000"}},"badge":{"show":false,"imgUrl":""},"borderRadiusTop":8,"borderRadiusBottom":8,"space":8,"spuIds":[2001,2002],"style":{"bgType":"color","bgColor":"","marginLeft":8,"marginRight":8,"marginBottom":8}}}]}');
 SET @user_property = CONCAT('{"page":{"description":"","backgroundColor":"#f5f5f5","backgroundImage":""},"navigationBar":{"bgType":"color","bgColor":"#fff","bgImg":"","styleType":"normal","showType":"always","alwaysShow":true,"mpCells":[', @nav_cell, '],"otherCells":[', @nav_cell, '],"_local":{"previewMp":true,"previewOther":false}},"components":[{"id":"UserCard","name":"用户卡片","property":{"space":0,"style":{"bgType":"color","bgColor":"#fff","marginBottom":8}}},{"id":"UserOrder","name":"用户订单","property":{"space":0,"style":{"bgType":"color","bgColor":"#fff","marginLeft":8,"marginRight":8,"marginBottom":8}}}]}');
+
+SET @template_property = CONCAT('{"tabBar":{"theme":"orange","style":{"bgType":"color","bgColor":"#fff","bgImg":"","color":"#282828","activeColor":"#fc4141"},"items":[{"text":"首页","url":"/pages/index/index","iconUrl":"', @tabbar_home_icon, '","activeIconUrl":"', @tabbar_home_active_icon, '"},{"text":"分类","url":"/pages/index/category?id=1001","iconUrl":"', @tabbar_category_icon, '","activeIconUrl":"', @tabbar_category_active_icon, '"},{"text":"购物车","url":"/pages/index/cart","iconUrl":"', @tabbar_cart_icon, '","activeIconUrl":"', @tabbar_cart_active_icon, '"},{"text":"我的","url":"/pages/index/user","iconUrl":"', @tabbar_user_icon, '","activeIconUrl":"', @tabbar_user_active_icon, '"}]}}');
+SET @nav_cell = '{"type":"text","width":4,"height":35,"top":0,"left":2,"text":"商城","textColor":"#111111","imgUrl":"","url":"","backgroundColor":"","placeholder":"","placeholderPosition":"left","showScan":false,"borderRadius":0}';
+SET @home_property = CONCAT('{"page":{"description":"","backgroundColor":"#f5f5f5","backgroundImage":""},"navigationBar":{"bgType":"color","bgColor":"#fff","bgImg":"","styleType":"normal","showType":"always","alwaysShow":true,"mpCells":[', @nav_cell, '],"otherCells":[', @nav_cell, '],"_local":{"previewMp":true,"previewOther":false}},"components":[{"id":"SearchBar","name":"搜索框","property":{"height":32,"showScan":false,"borderRadius":16,"placeholder":"搜索商品","placeholderPosition":"left","backgroundColor":"rgb(238,238,238)","textColor":"rgb(120,120,120)","hotKeywords":["底座","联调"],"style":{"bgType":"color","bgColor":"#fff","marginBottom":8,"paddingTop":8,"paddingRight":8,"paddingBottom":8,"paddingLeft":8}}},{"id":"Carousel","name":"轮播图","property":{"type":"default","indicator":"dot","autoplay":true,"interval":3,"height":174,"items":[{"type":"img","imgUrl":"', @carousel_image_1, '","videoUrl":"","url":"/pages/goods/list"},{"type":"img","imgUrl":"', @carousel_image_2, '","videoUrl":"","url":"/pages/goods/list"}],"style":{"bgType":"color","bgColor":"#fff","marginBottom":8}}},{"id":"MenuGrid","name":"宫格导航","property":{"column":3,"space":0,"list":[{"categoryId":1001,"iconUrl":"', @menu_icon_all, '","title":"全部商品","titleColor":"#333","subtitle":"现货上架","subtitleColor":"#999","url":"/pages/goods/list","badge":{"show":false,"text":"","textColor":"#fff","bgColor":"#FF6000"}},{"categoryId":1002,"iconUrl":"', @menu_icon_life, '","title":"生活好物","titleColor":"#333","subtitle":"精选分类","subtitleColor":"#999","url":"/pages/goods/list?categoryId=1002","badge":{"show":false,"text":"","textColor":"#fff","bgColor":"#FF6000"}},{"categoryId":1003,"iconUrl":"', @menu_icon_digital, '","title":"数码优选","titleColor":"#333","subtitle":"新品推荐","subtitleColor":"#999","url":"/pages/goods/list?categoryId=1003","badge":{"show":false,"text":"","textColor":"#fff","bgColor":"#FF6000"}}],"style":{"bgType":"color","bgColor":"#fff","marginBottom":8,"marginLeft":8,"marginRight":8,"paddingTop":8,"paddingRight":8,"paddingBottom":8,"paddingLeft":8,"borderTopLeftRadius":8,"borderTopRightRadius":8,"borderBottomRightRadius":8,"borderBottomLeftRadius":8}}},{"id":"TitleBar","name":"标题栏","property":{"bgImgUrl":"","marginLeft":0,"textAlign":"left","title":"精选商品","description":"管理端修改商品后，移动端会读取同一份后端数据","titleSize":16,"descriptionSize":12,"titleWeight":600,"descriptionWeight":200,"titleColor":"rgba(50,50,51,1)","descriptionColor":"rgba(150,151,153,1)","height":44,"more":{"show":true,"type":"all","text":"查看更多","url":"/pages/goods/list"},"style":{"bgType":"color","bgColor":"#fff","marginLeft":8,"marginRight":8,"marginBottom":8}}},{"id":"ProductList","name":"商品栏","property":{"layoutType":"twoCol","fields":{"name":{"show":true,"color":"#000"},"price":{"show":true,"color":"#ff3000"}},"badge":{"show":false,"imgUrl":""},"borderRadiusTop":8,"borderRadiusBottom":8,"space":8,"spuIds":[2001,2002],"style":{"bgType":"color","bgColor":"","marginLeft":8,"marginRight":8,"marginBottom":8}}}]}');
 
 UPDATE `promotion_diy_template`
 SET `used` = b'0',

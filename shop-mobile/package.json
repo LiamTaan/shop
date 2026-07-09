@@ -8,7 +8,7 @@
     "dev:h5": "cross-env UNI_INPUT_DIR=. uni -p h5",
     "build:h5": "cross-env UNI_INPUT_DIR=. uni build -p h5",
     "dev:mp-weixin": "cross-env UNI_INPUT_DIR=. uni -p mp-weixin",
-    "build:mp-weixin": "cross-env UNI_INPUT_DIR=. uni build -p mp-weixin",
+    "build:mp-weixin": "cross-env UNI_INPUT_DIR=. uni build -p mp-weixin && powershell -ExecutionPolicy Bypass -File ./scripts/sync-mp-weixin-static.ps1",
     "dev:app": "cross-env UNI_INPUT_DIR=. uni -p app",
     "build:app": "cross-env UNI_INPUT_DIR=. uni build -p app",
     "prettier": "prettier --write  \"{pages,sheep}/**/*.{js,json,tsx,css,less,scss,vue,html,md}\""

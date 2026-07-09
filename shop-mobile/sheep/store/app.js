@@ -85,9 +85,9 @@ const app = defineStore('app', {
             methods: ['forward', 'poster', 'link'],
             linkAddress: h5Url,
             posterInfo: {
-              user_bg: '/static/img/shop/config/user-poster-bg.png',
-              goods_bg: '/static/img/shop/config/goods-poster-bg.png',
-              groupon_bg: '/static/img/shop/config/groupon-poster-bg.png',
+              user_bg: '',
+              goods_bg: '',
+              groupon_bg: '',
             },
             forwardInfo: {
               title: '',
@@ -208,6 +208,89 @@ const adaptTemplate = async (appTemplate, templateId) => {
   }
   appTemplate.home = diyTemplate?.home;
   appTemplate.user = diyTemplate?.user;
+  normalizeLocalTemplateAssets(appTemplate);
+};
+
+const isMallLogoAsset = (value) =>
+  typeof value === 'string' &&
+  (value === '/static/mall-logo.png' || value.endsWith('/static/mall-logo.png'));
+
+const normalizeLocalTemplateAssets = (appTemplate) => {
+  if (!appTemplate) {
+    return;
+  }
+
+  const tabbarItems = appTemplate?.basic?.tabbar?.items;
+  const tabbarFallbacks = [
+    {
+      iconUrl: '/static/img/shop/tabbar/tabbar_home.png',
+      activeIconUrl: '/static/img/shop/tabbar/tabbar_home1.png',
+    },
+    {
+      iconUrl: '/static/img/shop/tabbar/tabbar_category.png',
+      activeIconUrl: '/static/img/shop/tabbar/tabbar_category1.png',
+    },
+    {
+      iconUrl: '/static/img/shop/tabbar/tabbar_cart.png',
+      activeIconUrl: '/static/img/shop/tabbar/tabbar_cart1.png',
+    },
+    {
+      iconUrl: '/static/img/shop/tabbar/tabbar_personal.png',
+      activeIconUrl: '/static/img/shop/tabbar/tabbar_personal1.png',
+    },
+  ];
+  if (Array.isArray(tabbarItems) && tabbarItems.length) {
+    const shouldNormalizeTabbar = tabbarItems.every(
+      (item) => isMallLogoAsset(item?.iconUrl) || isMallLogoAsset(item?.activeIconUrl),
+    );
+    if (shouldNormalizeTabbar) {
+      tabbarItems.forEach((item, index) => {
+        const icon = tabbarFallbacks[index] || tabbarFallbacks[tabbarFallbacks.length - 1];
+        item.iconUrl = icon.iconUrl;
+        item.activeIconUrl = icon.activeIconUrl;
+      });
+    }
+  }
+
+  const homeComponents = appTemplate?.home?.components;
+  if (!Array.isArray(homeComponents)) {
+    return;
+  }
+
+  const carouselFallbacks = ['/static/mall-logo.png', '/static/img/shop/app/sign.png'];
+  const menuFallbacks = [
+    '/static/img/shop/tabbar/tabbar_home1.png',
+    '/static/img/shop/tabbar/tabbar_category1.png',
+    '/static/img/shop/tabbar/tabbar_cart1.png',
+  ];
+
+  const carousel = homeComponents.find((item) => item?.id === 'Carousel');
+  const carouselItems = carousel?.property?.items;
+  if (
+    Array.isArray(carouselItems) &&
+    carouselItems.length &&
+    carouselItems.every((item) => isMallLogoAsset(item?.imgUrl))
+  ) {
+    carouselItems.forEach((item, index) => {
+      item.imgUrl = carouselFallbacks[index] || carouselFallbacks[carouselFallbacks.length - 1];
+    });
+  }
+
+  const menuGrid = homeComponents.find((item) => item?.id === 'MenuGrid');
+  const menuList = menuGrid?.property?.list;
+  if (Array.isArray(menuList) && menuList.length && menuList.every((item) => isMallLogoAsset(item?.iconUrl))) {
+    menuList.forEach((item, index) => {
+      item.iconUrl = menuFallbacks[index] || menuFallbacks[menuFallbacks.length - 1];
+    });
+  }
+  if (Array.isArray(menuList) && menuList.length) {
+    const categoryFallbackIds = [1001, 1002, 1003];
+    menuList.forEach((item, index) => {
+      if (!item.categoryId && categoryFallbackIds[index]) {
+        item.categoryId = categoryFallbackIds[index];
+      }
+    });
+  }
 };
 
 export default app;

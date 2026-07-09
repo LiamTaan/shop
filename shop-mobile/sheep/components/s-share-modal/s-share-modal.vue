@@ -3,7 +3,10 @@
   <view>
     <su-popup :show="state.showShareGuide" :showClose="false" @close="onCloseGuide" />
     <view v-if="state.showShareGuide" class="guide-wrap">
-      <image class="guide-image" :src="sheep.$url.static('/static/img/shop/share/share_guide.png')" />
+      <view class="guide-card">
+        <text class="guide-title">请点击右上角</text>
+        <text class="guide-desc">通过微信原生菜单完成转发</text>
+      </view>
     </view>
 
     <su-popup :show="show" round="10" :showClose="false" @close="closeShareModal">
@@ -17,7 +20,9 @@
             open-type="share"
             @tap="onShareByForward"
           >
-            <image class="share-img" :src="sheep.$url.static('/static/img/shop/share/share_wx.png')" mode="" />
+            <view class="share-img share-icon share-icon-weixin">
+              <text class="cicon-weixin"></text>
+            </view>
             <text class="share-title">微信好友</text>
           </button>
 
@@ -27,11 +32,9 @@
             class="share-item share-btn ss-flex-col ss-col-center"
             @tap="onShareByPoster"
           >
-            <image
-              class="share-img"
-              :src="sheep.$url.static('/static/img/shop/share/share_poster.png')"
-              mode=""
-            />
+            <view class="share-img share-icon share-icon-poster">
+              <text class="cicon-pic"></text>
+            </view>
             <text class="share-title">生成海报</text>
           </button>
 
@@ -41,7 +44,9 @@
             class="share-item share-btn ss-flex-col ss-col-center"
             @tap="onShareByCopyLink"
           >
-            <image class="share-img" :src="sheep.$url.static('/static/img/shop/share/share_link.png')" mode="" />
+            <view class="share-img share-icon share-icon-link">
+              <text class="cicon-link"></text>
+            </view>
             <text class="share-title">复制链接</text>
           </button>
         </view>
@@ -138,13 +143,35 @@
 </script>
 
 <style lang="scss" scoped>
-  .guide-image {
+  .guide-wrap {
     right: 30rpx;
-    top: 0;
+    top: 20rpx;
     position: fixed;
-    width: 580rpx;
-    height: 430rpx;
     z-index: 10080;
+  }
+
+  .guide-card {
+    width: 360rpx;
+    padding: 24rpx 28rpx;
+    border-radius: 24rpx;
+    background: rgba(51, 51, 51, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    color: #fff;
+  }
+
+  .guide-title {
+    font-size: 30rpx;
+    font-weight: 600;
+    line-height: 42rpx;
+  }
+
+  .guide-desc {
+    font-size: 24rpx;
+    line-height: 34rpx;
+    margin-top: 8rpx;
+    opacity: 0.92;
   }
 
   // 分享tool
@@ -180,9 +207,30 @@
         .share-img {
           width: 70rpx;
           height: 70rpx;
-          background: $gray-f;
-          border-radius: 50%;
           margin-bottom: 20rpx;
+        }
+
+        .share-icon {
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 38rpx;
+        }
+
+        .share-icon-weixin {
+          background: #e8f7ed;
+          color: #1aad19;
+        }
+
+        .share-icon-poster {
+          background: #fff1e8;
+          color: #ff7a45;
+        }
+
+        .share-icon-link {
+          background: #eef3ff;
+          color: #3d6cff;
         }
 
         .share-title {
