@@ -125,6 +125,12 @@ aj:
 --- #################### 项目自定义配置 ####################
 
 yudao:
+  ai:
+    service:
+      base-url: ${SHOP_AI_SERVICE_BASE_URL:http://127.0.0.1:8000}
+      internal-token: ${SHOP_AI_SERVICE_INTERNAL_TOKEN:}
+      connect-timeout: 5s
+      read-timeout: 2m
   info:
     version: 1.0.0
     base-package: cn.iocoder.yudao

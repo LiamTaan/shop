@@ -9,3 +9,28 @@ def test_health() -> None:
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
 
+
+def test_chat_stream_protocol() -> None:
+    response = TestClient(app).post(
+        "/internal/v1/chat/stream",
+        json={
+            "tenantId": 1,
+            "userId": 100,
+            "userType": "APP",
+            "message": "hello",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "event: message" in response.text
+    assert "event: done" in response.text
+
+
+def test_chat_stream_rejects_invalid_internal_token(monkeypatch) -> None:
+    monkeypatch.setattr("app.api.internal.settings.shop_server_internal_token", "secret")
+    response = TestClient(app).post(
+        "/internal/v1/chat/stream",
+        json={"tenantId": 1, "userId": 100, "userType": "APP", "message": "hello"},
+    )
+
+    assert response.status_code == 401

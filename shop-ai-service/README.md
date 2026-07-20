@@ -20,5 +20,28 @@
 
 ## 运行状态
 
-当前仅为骨架，接口和业务逻辑尚未实现。
+当前已具备第一条流式链路：
 
+- OpenAI-compatible 模型流式调用
+- `shop-server` 内部令牌校验
+- 统一 SSE `message / done / error` 事件
+- 管理端和移动端共用的请求模型
+
+商品、订单、物流工具和会话持久化尚未实现。
+
+## Internal protocol
+
+The first shared protocol is `POST /internal/v1/chat/stream`. The shop-server
+facade will authenticate the caller, add `tenantId`, `userId`, and `userType`,
+then proxy the SSE stream to either the admin or app API. Direct browser access
+to this internal endpoint is not supported.
+
+## Local run
+
+```bash
+python -m pip install -e ".[dev]"
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Without `LLM_API_KEY` and `LLM_MODEL`, the stream returns an explicit provider
+configuration message instead of calling an external model.

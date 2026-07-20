@@ -7,12 +7,10 @@ dependencies = [
     "fastapi>=0.115,<1.0",
     "uvicorn[standard]>=0.34,<1.0",
     "pydantic-settings>=2.7,<3.0",
+    "openai>=1.68,<2.0",
 ]
 
 [project.optional-dependencies]
-llm = [
-    "openai>=1.68,<2.0",
-]
 rag = [
     "qdrant-client>=1.13,<2.0",
 ]
@@ -35,4 +33,3 @@ packages = ["app"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-

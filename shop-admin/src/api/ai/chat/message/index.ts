@@ -1,6 +1,6 @@
 import request from '@/config/axios'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
-import { getAccessToken } from '@/utils/auth'
+import { getAccessToken, getTenantId } from '@/utils/auth'
 import { config } from '@/config/axios/config'
 
 // 聊天VO
@@ -59,11 +59,14 @@ export const ChatMessageApi = {
     attachmentUrls?: string[]
   ) => {
     const token = getAccessToken()
+    const sendMessageId = -Date.now()
+    const receiveMessageId = sendMessageId - 1
     return fetchEventSource(`${config.base_url}/ai/chat/message/send-stream`, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'tenant-id': `${getTenantId() || ''}`
       },
       openWhenHidden: true,
       body: JSON.stringify({
@@ -73,7 +76,36 @@ export const ChatMessageApi = {
         useSearch: enableWebSearch,
         attachmentUrls: attachmentUrls || []
       }),
-      onmessage: onMessage,
+      onmessage: (event) => {
+        const payload = JSON.parse(event.data)
+        if (payload.type !== 'text_delta') {
+          return
+        }
+        onMessage({
+          ...event,
+          data: JSON.stringify({
+            code: 0,
+            data: {
+              send: {
+                id: sendMessageId,
+                conversationId,
+                type: 'user',
+                content,
+                createTime: new Date()
+              },
+              receive: {
+                id: receiveMessageId,
+                conversationId,
+                type: 'assistant',
+                content: payload.content,
+                reasoningContent: '',
+                createTime: new Date()
+              }
+            },
+            msg: ''
+          })
+        })
+      },
       onerror: onError,
       onclose: onClose,
       signal: ctrl.signal
