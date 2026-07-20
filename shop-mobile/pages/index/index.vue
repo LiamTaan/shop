@@ -16,6 +16,9 @@
       >
         <s-block-item :type="item.id" :data="item.property" :styles="item.property.style" />
       </s-block>
+      <view class="ai-entry" @tap="openAi">
+        <uni-icons type="chat-filled" size="26" color="#fff" />
+      </view>
     </s-layout>
   </view>
 </template>
@@ -31,6 +34,7 @@
   });
 
   const template = computed(() => sheep.$store('app').template?.home);
+  const openAi = () => sheep.$router.go('/pages/ai/index');
   // 在此处拦截改变一下首页轮播图 此处先写死后期复活 放到启动函数里
   // (async function() {
   // console.log('原代码首页定制化数据',template)
@@ -104,4 +108,19 @@
   onPageScroll(() => {});
 </script>
 
-<style></style>
+<style lang="scss">
+  .ai-entry {
+    position: fixed;
+    right: 28rpx;
+    bottom: calc(150rpx + env(safe-area-inset-bottom));
+    z-index: 20;
+    width: 96rpx;
+    height: 96rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e94b35;
+    box-shadow: 0 8rpx 24rpx rgba(233, 75, 53, 0.3);
+  }
+</style>

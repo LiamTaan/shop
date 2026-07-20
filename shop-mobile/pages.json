@@ -85,6 +85,20 @@
 		}
 	],
 	"subPackages": [{
+			"root": "pages/ai",
+			"pages": [{
+					"path": "index",
+					"style": {
+						"navigationBarTitleText": "AI 导购"
+					},
+					"meta": {
+						"auth": true,
+						"sync": true,
+						"title": "AI 导购",
+						"group": "商城"
+					}
+				}]
+		}, {
 			"root": "pages/goods",
 			"pages": [{
 					"path": "index",
