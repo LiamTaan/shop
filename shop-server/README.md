@@ -49,6 +49,18 @@
 - 用户端接口前缀：`/app-api`
 - WebSocket：`/infra/ws`
 
+## 演示商品数据
+
+公开演示商品种子位于 `sql/mysql/03-mall-fakestore-seed.sql`，包含分类、品牌、SPU 和 SKU。数据来自 Fake Store API，仅用于本地开发和页面联调，不代表真实在售商品。
+
+需要重新拉取公开数据并生成 SQL 时，在 `shop-server` 目录执行：
+
+```bash
+node script/data/generate-fakestore-seed.mjs
+```
+
+导入含中文的 SQL 时，先将 UTF-8 文件复制到 MySQL 所在环境，再使用 `--default-character-set=utf8mb4` 执行，避免通过 Windows shell 管道传输中文 SQL。
+
 ## 部署说明
 
 - `script/docker` 中提供基础 Docker 编排文件
