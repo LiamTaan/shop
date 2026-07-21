@@ -1,5 +1,5 @@
 import { apiPath, baseUrl } from '@/sheep/config';
-import { getAccessToken, getTenantId } from '@/sheep/request';
+import request, { getAccessToken, getTenantId } from '@/sheep/request';
 
 function parseEvents(state, chunk, onEvent) {
   state.buffer += chunk;
@@ -34,6 +34,34 @@ function decodeChunk(buffer) {
 }
 
 const ChatApi = {
+  listConversations: () =>
+    request({
+      url: '/ai/chat/message/conversation/list',
+      method: 'POST',
+      data: {},
+    }),
+
+  getConversationMessages: (conversationId) =>
+    request({
+      url: '/ai/chat/message/conversation/messages',
+      method: 'POST',
+      data: { conversationId },
+    }),
+
+  renameConversation: (conversationId, title) =>
+    request({
+      url: '/ai/chat/message/conversation/rename',
+      method: 'POST',
+      data: { conversationId, title },
+    }),
+
+  deleteConversation: (conversationId) =>
+    request({
+      url: '/ai/chat/message/conversation/delete',
+      method: 'POST',
+      data: { conversationId },
+    }),
+
   sendStream: (data, { onEvent, onError, onClose } = {}) => {
     const token = getAccessToken();
     if (!token) {

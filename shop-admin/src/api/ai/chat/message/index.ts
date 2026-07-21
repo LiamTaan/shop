@@ -47,14 +47,123 @@ export interface AiProductItem {
   salesCount: number
 }
 
+export interface AiOrderItem {
+  id?: number
+  spuId?: number
+  spuName?: string
+  picUrl?: string
+  count?: number
+  price?: number
+  payPrice?: number
+}
+
+export interface AiOrderCard {
+  id?: number
+  no?: string
+  status?: number
+  statusName?: string
+  productCount?: number
+  payPrice?: number
+  logisticsName?: string
+  logisticsNo?: string
+  items?: AiOrderItem[]
+}
+
+export interface AiLogisticsCard {
+  orderId?: number
+  orderNo?: string
+  logisticsName?: string
+  logisticsNo?: string
+  tracks?: { time?: string; content?: string }[]
+}
+
+export interface AiCouponCard {
+  id?: number
+  name?: string
+  status?: number
+  statusName?: string
+  usePrice?: number
+  discountType?: number
+  discountTypeName?: string
+  discountPercent?: number
+  discountPrice?: number
+  validEndTime?: string
+}
+
+export interface AiAfterSaleCard {
+  id?: number
+  no?: string
+  status?: number
+  statusName?: string
+  orderNo?: string
+  spuName?: string
+  picUrl?: string
+  count?: number
+  refundPrice?: number
+  applyReason?: string
+}
+
 export type ShopAssistantEvent =
   | { type: 'text_delta'; content: string }
   | { type: 'product_list'; items: AiProductItem[] }
+  | { type: 'product_detail'; item: AiProductItem | null }
+  | { type: 'order_list'; items: AiOrderCard[] }
+  | { type: 'order_detail'; item: AiOrderCard | null }
+  | { type: 'logistics'; item: AiLogisticsCard | null }
+  | { type: 'coupon_list'; items: AiCouponCard[] }
+  | { type: 'aftersale_list'; items: AiAfterSaleCard[] }
+  | { type: 'aftersale_detail'; item: AiAfterSaleCard | null }
+  | {
+      type: 'ops_product_list'
+      kind?: 'low_stock' | 'hot' | 'slow'
+      items: AiProductItem[]
+    }
+  | {
+      type: 'ops_brief'
+      item: {
+        alertStockThreshold?: number
+        lowStockCount?: number
+        soldOutCount?: number
+        onSaleCount?: number
+        lowStockItems?: AiProductItem[]
+        hotItems?: AiProductItem[]
+        slowItems?: AiProductItem[]
+      }
+    }
+  | {
+      type: 'knowledge_list'
+      items: { docId?: string; title?: string; content?: string; score?: number }[]
+    }
   | { type: 'done'; messageId?: string }
   | { type: 'error'; message: string }
 
 // AI chat 聊天
 export const ChatMessageApi = {
+  listConversations: async () => {
+    return await request.post({ url: `/ai/chat/message/conversation/list` })
+  },
+
+  getConversationMessages: async (conversationId: string) => {
+    return await request.post({
+      url: `/ai/chat/message/conversation/messages`,
+      data: { conversationId }
+    })
+  },
+
+  renameConversation: async (conversationId: string, title: string) => {
+    return await request.post({
+      url: `/ai/chat/message/conversation/rename`,
+      data: { conversationId, title }
+    })
+  },
+
+  deleteConversation: async (conversationId: string) => {
+    return await request.post({
+      url: `/ai/chat/message/conversation/delete`,
+      data: { conversationId }
+    })
+  },
+
   sendShopAssistantStream: async (
     content: string,
     conversationId: string,
