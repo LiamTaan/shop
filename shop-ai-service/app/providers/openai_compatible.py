@@ -89,6 +89,8 @@ class OpenAiCompatibleProvider:
             tools=tools,
         )
         for chunk in stream:
+            if not chunk.choices:
+                continue
             content = chunk.choices[0].delta.content
             if content:
                 yield sse_event("message", {"type": "text_delta", "content": content})

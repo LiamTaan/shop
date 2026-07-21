@@ -10,7 +10,10 @@ def test_health() -> None:
     assert response.json()["status"] == "ok"
 
 
-def test_chat_stream_protocol() -> None:
+def test_chat_stream_protocol(monkeypatch) -> None:
+    monkeypatch.setattr("app.api.internal.settings.shop_server_internal_token", "")
+    monkeypatch.setattr("app.providers.openai_compatible.settings.llm_api_key", "")
+    monkeypatch.setattr("app.providers.openai_compatible.settings.llm_model", "")
     response = TestClient(app).post(
         "/internal/v1/chat/stream",
         json={
