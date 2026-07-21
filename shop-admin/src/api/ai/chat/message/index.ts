@@ -36,8 +36,59 @@ export interface ChatMessageVO {
   userAvatar: string // 用户头像
 }
 
+export interface AiProductItem {
+  id: number
+  name: string
+  introduction?: string
+  picUrl?: string
+  price: number
+  marketPrice?: number
+  stock: number
+  salesCount: number
+}
+
+export type ShopAssistantEvent =
+  | { type: 'text_delta'; content: string }
+  | { type: 'product_list'; items: AiProductItem[] }
+  | { type: 'done'; messageId?: string }
+  | { type: 'error'; message: string }
+
 // AI chat 聊天
 export const ChatMessageApi = {
+  sendShopAssistantStream: async (
+    content: string,
+    ctrl: AbortController,
+    onEvent: (event: ShopAssistantEvent) => void,
+    onError: (error: unknown) => void,
+    onClose: () => void
+  ) => {
+    const token = getAccessToken()
+    return fetchEventSource(`${config.base_url}/ai/chat/message/send-stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'tenant-id': `${getTenantId() || ''}`
+      },
+      openWhenHidden: true,
+      body: JSON.stringify({ content, useContext: true, useSearch: false, attachmentUrls: [] }),
+      signal: ctrl.signal,
+      onopen: async (response) => {
+        if (!response.ok) {
+          throw new Error(`AI request failed: ${response.status}`)
+        }
+      },
+      onmessage: (event) => {
+        onEvent(JSON.parse(event.data) as ShopAssistantEvent)
+      },
+      onerror: (error) => {
+        onError(error)
+        throw error
+      },
+      onclose: onClose
+    })
+  },
+
   // 消息列表
   getChatMessageListByConversationId: async (conversationId: number | null) => {
     return await request.get({
