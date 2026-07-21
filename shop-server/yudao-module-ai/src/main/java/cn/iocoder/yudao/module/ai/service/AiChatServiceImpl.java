@@ -2,8 +2,13 @@ package cn.iocoder.yudao.module.ai.service;
 
 import cn.iocoder.yudao.framework.common.util.json.JsonUtils;
 import cn.iocoder.yudao.module.ai.controller.vo.AiChatMessageSendReqVO;
+import cn.iocoder.yudao.module.ai.controller.vo.AiConversationIdReqVO;
+import cn.iocoder.yudao.module.ai.controller.vo.AiConversationRenameReqVO;
 import cn.iocoder.yudao.module.ai.framework.client.AiServiceClient;
 import cn.iocoder.yudao.module.ai.framework.client.dto.AiServiceChatReqDTO;
+import cn.iocoder.yudao.module.ai.framework.client.dto.AiServiceConversationIdReqDTO;
+import cn.iocoder.yudao.module.ai.framework.client.dto.AiServiceConversationRenameReqDTO;
+import cn.iocoder.yudao.module.ai.framework.client.dto.AiServiceConversationScopeReqDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
@@ -12,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 @Service
@@ -44,6 +50,47 @@ public class AiChatServiceImpl implements AiChatService {
 
         aiStreamExecutor.execute(() -> doStream(serviceRequest, emitter));
         return emitter;
+    }
+
+    @Override
+    public Map<String, Object> listConversations(Long tenantId, Long userId, String userType) {
+        return aiServiceClient.listConversations(new AiServiceConversationScopeReqDTO()
+                .setTenantId(tenantId)
+                .setUserId(userId)
+                .setUserType(userType)
+                .setLimit(30));
+    }
+
+    @Override
+    public Map<String, Object> getConversationMessages(Long tenantId, Long userId, String userType,
+                                                       AiConversationIdReqVO request) {
+        return aiServiceClient.getConversationMessages(new AiServiceConversationIdReqDTO()
+                .setTenantId(tenantId)
+                .setUserId(userId)
+                .setUserType(userType)
+                .setConversationId(request.getConversationId())
+                .setLimit(50));
+    }
+
+    @Override
+    public Map<String, Object> renameConversation(Long tenantId, Long userId, String userType,
+                                                  AiConversationRenameReqVO request) {
+        return aiServiceClient.renameConversation(new AiServiceConversationRenameReqDTO()
+                .setTenantId(tenantId)
+                .setUserId(userId)
+                .setUserType(userType)
+                .setConversationId(request.getConversationId())
+                .setTitle(request.getTitle()));
+    }
+
+    @Override
+    public Map<String, Object> deleteConversation(Long tenantId, Long userId, String userType,
+                                                  AiConversationIdReqVO request) {
+        return aiServiceClient.deleteConversation(new AiServiceConversationIdReqDTO()
+                .setTenantId(tenantId)
+                .setUserId(userId)
+                .setUserType(userType)
+                .setConversationId(request.getConversationId()));
     }
 
     private void doStream(AiServiceChatReqDTO request, SseEmitter emitter) {

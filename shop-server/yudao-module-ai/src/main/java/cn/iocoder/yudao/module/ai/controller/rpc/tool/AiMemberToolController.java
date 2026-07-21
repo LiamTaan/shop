@@ -1,12 +1,13 @@
 package cn.iocoder.yudao.module.ai.controller.rpc.tool;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductDetailReqVO;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductDetailRespVO;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductSearchReqVO;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductSearchRespVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiAfterSaleDetailReqVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiAfterSaleListReqVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiAfterSaleRespVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiCouponListReqVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiCouponRespVO;
 import cn.iocoder.yudao.module.ai.framework.config.AiServiceProperties;
-import cn.iocoder.yudao.module.ai.service.tool.AiProductToolService;
+import cn.iocoder.yudao.module.ai.service.tool.AiMemberToolService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -26,31 +27,40 @@ import static cn.iocoder.yudao.framework.common.enums.RpcConstants.RPC_API_PREFI
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @RestController
-@RequestMapping(RPC_API_PREFIX + "/ai/tools/product")
+@RequestMapping(RPC_API_PREFIX + "/ai/tools")
 @Validated
-public class AiProductToolController {
+public class AiMemberToolController {
 
     @Resource
-    private AiProductToolService productToolService;
+    private AiMemberToolService memberToolService;
     @Resource
     private AiServiceProperties properties;
 
-    @PostMapping("/search")
+    @PostMapping("/coupon/list")
     @PermitAll
-    public CommonResult<List<AiProductSearchRespVO>> search(
+    public CommonResult<List<AiCouponRespVO>> listCoupons(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-            @Valid @RequestBody AiProductSearchReqVO request) {
+            @Valid @RequestBody AiCouponListReqVO request) {
         validateInternalToken(authorization);
-        return success(productToolService.search(request));
+        return success(memberToolService.listCoupons(request));
     }
 
-    @PostMapping("/detail")
+    @PostMapping("/aftersale/list")
     @PermitAll
-    public CommonResult<AiProductDetailRespVO> detail(
+    public CommonResult<List<AiAfterSaleRespVO>> listAfterSales(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-            @Valid @RequestBody AiProductDetailReqVO request) {
+            @Valid @RequestBody AiAfterSaleListReqVO request) {
         validateInternalToken(authorization);
-        return success(productToolService.getDetail(request));
+        return success(memberToolService.listAfterSales(request));
+    }
+
+    @PostMapping("/aftersale/detail")
+    @PermitAll
+    public CommonResult<AiAfterSaleRespVO> getAfterSale(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @Valid @RequestBody AiAfterSaleDetailReqVO request) {
+        validateInternalToken(authorization);
+        return success(memberToolService.getAfterSale(request));
     }
 
     private void validateInternalToken(String authorization) {

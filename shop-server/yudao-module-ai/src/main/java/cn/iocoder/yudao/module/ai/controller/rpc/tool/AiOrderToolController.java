@@ -1,12 +1,13 @@
 package cn.iocoder.yudao.module.ai.controller.rpc.tool;
 
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductDetailReqVO;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductDetailRespVO;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductSearchReqVO;
-import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiProductSearchRespVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiLogisticsGetReqVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiLogisticsTrackRespVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiOrderDetailReqVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiOrderListReqVO;
+import cn.iocoder.yudao.module.ai.controller.rpc.tool.vo.AiOrderRespVO;
 import cn.iocoder.yudao.module.ai.framework.config.AiServiceProperties;
-import cn.iocoder.yudao.module.ai.service.tool.AiProductToolService;
+import cn.iocoder.yudao.module.ai.service.tool.AiOrderToolService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -26,31 +27,40 @@ import static cn.iocoder.yudao.framework.common.enums.RpcConstants.RPC_API_PREFI
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @RestController
-@RequestMapping(RPC_API_PREFIX + "/ai/tools/product")
+@RequestMapping(RPC_API_PREFIX + "/ai/tools")
 @Validated
-public class AiProductToolController {
+public class AiOrderToolController {
 
     @Resource
-    private AiProductToolService productToolService;
+    private AiOrderToolService orderToolService;
     @Resource
     private AiServiceProperties properties;
 
-    @PostMapping("/search")
+    @PostMapping("/order/list")
     @PermitAll
-    public CommonResult<List<AiProductSearchRespVO>> search(
+    public CommonResult<List<AiOrderRespVO>> listOrders(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-            @Valid @RequestBody AiProductSearchReqVO request) {
+            @Valid @RequestBody AiOrderListReqVO request) {
         validateInternalToken(authorization);
-        return success(productToolService.search(request));
+        return success(orderToolService.listOrders(request));
     }
 
-    @PostMapping("/detail")
+    @PostMapping("/order/detail")
     @PermitAll
-    public CommonResult<AiProductDetailRespVO> detail(
+    public CommonResult<AiOrderRespVO> getOrderDetail(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-            @Valid @RequestBody AiProductDetailReqVO request) {
+            @Valid @RequestBody AiOrderDetailReqVO request) {
         validateInternalToken(authorization);
-        return success(productToolService.getDetail(request));
+        return success(orderToolService.getOrderDetail(request));
+    }
+
+    @PostMapping("/logistics/get")
+    @PermitAll
+    public CommonResult<AiLogisticsTrackRespVO> getLogistics(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @Valid @RequestBody AiLogisticsGetReqVO request) {
+        validateInternalToken(authorization);
+        return success(orderToolService.getLogistics(request));
     }
 
     private void validateInternalToken(String authorization) {
