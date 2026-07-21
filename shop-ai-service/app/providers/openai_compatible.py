@@ -6,6 +6,7 @@ from openai import OpenAI
 
 from app.api.events import sse_event, text_events
 from app.api.schemas import ChatRequest
+from app.memory.sqlite import ConversationMemory
 from app.settings import settings
 from app.tools.shop_server import ShopServerClient
 
@@ -13,6 +14,7 @@ from app.tools.shop_server import ShopServerClient
 class OpenAiCompatibleProvider:
     def __init__(self) -> None:
         self.shop_server = ShopServerClient()
+        self.memory = ConversationMemory(settings.memory_db_path, settings.memory_max_messages)
 
 
     def stream(self, request: ChatRequest) -> Iterable[str]:
@@ -33,8 +35,9 @@ class OpenAiCompatibleProvider:
                     "products. Do not invent prices, stock, orders, or policies."
                 ),
             },
-            {"role": "user", "content": request.message},
         ]
+        messages.extend(self.memory.get_recent(request))
+        messages.append({"role": "user", "content": request.message})
         tools = [
             {
                 "type": "function",
@@ -60,7 +63,9 @@ class OpenAiCompatibleProvider:
         )
         assistant_message = decision.choices[0].message
         if not assistant_message.tool_calls:
-            yield from text_events(assistant_message.content or "", message_id)
+            assistant_content = assistant_message.content or ""
+            self.memory.append_exchange(request, request.message, assistant_content)
+            yield from text_events(assistant_content, message_id)
             return
 
         messages.append(assistant_message.model_dump(exclude_none=True))
@@ -88,10 +93,13 @@ class OpenAiCompatibleProvider:
             messages=messages,
             tools=tools,
         )
+        assistant_content_parts = []
         for chunk in stream:
             if not chunk.choices:
                 continue
             content = chunk.choices[0].delta.content
             if content:
+                assistant_content_parts.append(content)
                 yield sse_event("message", {"type": "text_delta", "content": content})
+        self.memory.append_exchange(request, request.message, "".join(assistant_content_parts))
         yield sse_event("done", {"type": "done", "messageId": message_id})

@@ -108,6 +108,8 @@ const streaming = ref(false)
 const messages = ref<AssistantMessage[]>([])
 const messageContainer = ref<HTMLElement>()
 let controller: AbortController | undefined
+const createConversationId = () => `admin-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+const conversationId = ref(createConversationId())
 
 const promptExamples = ['搜索背包商品', '推荐库存充足的商品', '查找适合促销的商品']
 const fenToYuan = (price: number) => (Number(price || 0) / 100).toFixed(2)
@@ -150,6 +152,7 @@ const send = async (preset?: string) => {
   try {
     await ChatMessageApi.sendShopAssistantStream(
       content,
+      conversationId.value,
       controller,
       (event) => handleEvent(assistant, event),
       () => {
@@ -173,6 +176,7 @@ const stopStream = () => {
 }
 
 const clearMessages = () => {
+  conversationId.value = createConversationId()
   messages.value = []
 }
 

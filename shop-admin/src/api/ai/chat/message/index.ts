@@ -57,6 +57,7 @@ export type ShopAssistantEvent =
 export const ChatMessageApi = {
   sendShopAssistantStream: async (
     content: string,
+    conversationId: string,
     ctrl: AbortController,
     onEvent: (event: ShopAssistantEvent) => void,
     onError: (error: unknown) => void,
@@ -71,7 +72,13 @@ export const ChatMessageApi = {
         'tenant-id': `${getTenantId() || ''}`
       },
       openWhenHidden: true,
-      body: JSON.stringify({ content, useContext: true, useSearch: false, attachmentUrls: [] }),
+      body: JSON.stringify({
+        conversationId,
+        content,
+        useContext: true,
+        useSearch: false,
+        attachmentUrls: []
+      }),
       signal: ctrl.signal,
       onopen: async (response) => {
         if (!response.ok) {

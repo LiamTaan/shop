@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://api.openai.com/v1"
     llm_api_key: str = ""
     llm_model: str = ""
+    memory_db_path: str = "data/shop-ai.db"
+    memory_max_messages: int = 12
     qdrant_url: str = "http://127.0.0.1:6333"
     qdrant_api_key: str = ""
     qdrant_collection: str = "shop_knowledge"
