@@ -38,3 +38,47 @@ def test_memory_skips_disabled_context(tmp_path) -> None:
     memory.append_exchange(current, "question", "answer")
 
     assert memory.get_recent(current) == []
+
+
+def test_conversation_list_rename_delete(tmp_path) -> None:
+    memory = ConversationMemory(str(tmp_path / "memory.db"))
+    current = request("conversation-a")
+    memory.append_exchange(current, "搜背包", "这是推荐")
+
+    listed = memory.list_conversations(tenant_id=1, user_id=100, user_type="APP")
+    assert len(listed) == 1
+    assert listed[0]["conversationId"] == "conversation-a"
+    assert "背包" in listed[0]["title"]
+
+    assert memory.rename_conversation(
+        tenant_id=1,
+        user_id=100,
+        user_type="APP",
+        conversation_id="conversation-a",
+        title="我的导购",
+    )
+    listed = memory.list_conversations(tenant_id=1, user_id=100, user_type="APP")
+    assert listed[0]["title"] == "我的导购"
+
+    messages = memory.get_messages(
+        tenant_id=1,
+        user_id=100,
+        user_type="APP",
+        conversation_id="conversation-a",
+    )
+    assert len(messages) == 2
+    assert messages[0]["role"] == "user"
+
+    assert memory.delete_conversation(
+        tenant_id=1,
+        user_id=100,
+        user_type="APP",
+        conversation_id="conversation-a",
+    )
+    assert memory.list_conversations(tenant_id=1, user_id=100, user_type="APP") == []
+    assert memory.get_messages(
+        tenant_id=1,
+        user_id=100,
+        user_type="APP",
+        conversation_id="conversation-a",
+    ) == []
