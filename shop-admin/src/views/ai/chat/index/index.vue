@@ -3,7 +3,9 @@
     <aside class="conversation-rail">
       <div class="rail-header">
         <strong>历史会话</strong>
-        <el-button type="primary" link :disabled="streaming" @click="startNewConversation">新建</el-button>
+        <el-button type="primary" link :disabled="streaming" @click="startNewConversation"
+          >新建</el-button
+        >
       </div>
       <div class="conversation-list">
         <button
@@ -17,154 +19,158 @@
           <span class="conversation-title">{{ item.title || '新会话' }}</span>
           <span class="conversation-actions" @click.stop>
             <el-button link type="primary" @click="renameConversation(item)">改名</el-button>
-            <el-button link type="danger" @click="removeConversation(item.conversationId)">删</el-button>
+            <el-button link type="danger" @click="removeConversation(item.conversationId)"
+              >删</el-button
+            >
           </span>
         </button>
-        <div v-if="!conversations.length" class="conversation-empty">暂无历史，发一条消息后出现</div>
+        <div v-if="!conversations.length" class="conversation-empty"
+          >暂无历史，发一条消息后出现</div
+        >
       </div>
     </aside>
 
     <div class="chat-panel">
-    <header class="assistant-header">
-      <div>
-        <h1>商城 AI 助手</h1>
-        <span>{{ streaming ? '正在生成' : '在线' }}</span>
-      </div>
-      <div class="header-actions">
-        <el-button v-if="streaming" type="danger" plain @click="stopStream">
-          <Icon icon="ep:video-pause" />
-          停止
-        </el-button>
-        <el-tooltip content="新开会话（清空当前）" placement="bottom">
-          <el-button :icon="Delete" circle :disabled="streaming" @click="clearMessages" />
-        </el-tooltip>
-      </div>
-    </header>
-
-    <main ref="messageContainer" class="message-list">
-      <section v-if="messages.length === 0" class="empty-state">
-        <Icon icon="ep:chat-dot-round" :size="42" color="var(--el-color-primary)" />
-        <div class="prompts">
-          <el-button v-for="item in promptExamples" :key="item" plain @click="send(item)">
-            {{ item }}
+      <header class="assistant-header">
+        <div>
+          <h1>商城 AI 助手</h1>
+          <span>{{ streaming ? '正在生成' : '在线' }}</span>
+        </div>
+        <div class="header-actions">
+          <el-button v-if="streaming" type="danger" plain @click="stopStream">
+            <Icon icon="ep:video-pause" />
+            停止
           </el-button>
+          <el-tooltip content="新开会话（清空当前）" placement="bottom">
+            <el-button :icon="Delete" circle :disabled="streaming" @click="clearMessages" />
+          </el-tooltip>
         </div>
-      </section>
+      </header>
 
-      <section v-for="item in messages" :key="item.id" class="message-row" :class="item.role">
-        <el-avatar v-if="item.role === 'assistant'" :size="34">
-          <Icon icon="ep:service" />
-        </el-avatar>
-        <div class="message-content">
-          <div class="message-meta">{{ item.role === 'user' ? '我' : '商城助手' }}</div>
-          <div v-if="item.content" class="message-bubble">
-            <MarkdownView v-if="item.role === 'assistant'" :content="item.content" />
-            <span v-else>{{ item.content }}</span>
+      <main ref="messageContainer" class="message-list">
+        <section v-if="messages.length === 0" class="empty-state">
+          <Icon icon="ep:chat-dot-round" :size="42" color="var(--el-color-primary)" />
+          <div class="prompts">
+            <el-button v-for="item in promptExamples" :key="item" plain @click="send(item)">
+              {{ item }}
+            </el-button>
           </div>
-          <div v-if="item.products.length" class="product-list">
-            <article v-for="product in item.products" :key="product.id" class="product-item">
-              <el-image :src="product.picUrl" fit="cover" class="product-image">
-                <template #error><Icon icon="ep:picture" :size="28" /></template>
-              </el-image>
-              <div class="product-info">
-                <strong>{{ product.name }}</strong>
-                <span>{{ product.introduction || '暂无商品简介' }}</span>
-                <div class="product-stats">
-                  <b>￥{{ fenToYuan(product.price) }}</b>
-                  <span>库存 {{ product.stock ?? 0 }}</span>
-                  <span>销量 {{ product.salesCount ?? 0 }}</span>
+        </section>
+
+        <section v-for="item in messages" :key="item.id" class="message-row" :class="item.role">
+          <el-avatar v-if="item.role === 'assistant'" :size="34">
+            <Icon icon="ep:service" />
+          </el-avatar>
+          <div class="message-content">
+            <div class="message-meta">{{ item.role === 'user' ? '我' : '商城助手' }}</div>
+            <div v-if="item.content" class="message-bubble">
+              <MarkdownView v-if="item.role === 'assistant'" :content="item.content" />
+              <span v-else>{{ item.content }}</span>
+            </div>
+            <div v-if="item.products.length" class="product-list">
+              <article v-for="product in item.products" :key="product.id" class="product-item">
+                <el-image :src="product.picUrl" fit="cover" class="product-image">
+                  <template #error><Icon icon="ep:picture" :size="28" /></template>
+                </el-image>
+                <div class="product-info">
+                  <strong>{{ product.name }}</strong>
+                  <span>{{ product.introduction || '暂无商品简介' }}</span>
+                  <div class="product-stats">
+                    <b>￥{{ fenToYuan(product.price) }}</b>
+                    <span>库存 {{ product.stock ?? 0 }}</span>
+                    <span>销量 {{ product.salesCount ?? 0 }}</span>
+                  </div>
                 </div>
-              </div>
-              <el-button type="primary" link @click="openProduct(product.id)">
-                查看商品
-                <Icon icon="ep:arrow-right" />
-              </el-button>
-            </article>
+                <el-button type="primary" link @click="openProduct(product.id)">
+                  查看商品
+                  <Icon icon="ep:arrow-right" />
+                </el-button>
+              </article>
+            </div>
+            <div v-if="item.orders.length" class="order-list">
+              <article v-for="order in item.orders" :key="order.id || order.no" class="order-item">
+                <div class="order-head">
+                  <strong>订单 {{ order.no || order.id }}</strong>
+                  <span>{{ order.statusName || '状态未知' }}</span>
+                </div>
+                <span>{{ orderItemSummary(order) }}</span>
+                <div class="product-stats">
+                  <b>￥{{ fenToYuan(order.payPrice || 0) }}</b>
+                  <span>共 {{ order.productCount ?? order.items?.length ?? 0 }} 件</span>
+                </div>
+              </article>
+            </div>
+            <div v-if="item.logistics" class="order-list">
+              <article class="order-item">
+                <div class="order-head">
+                  <strong>物流 {{ item.logistics.logisticsNo || item.logistics.orderNo }}</strong>
+                  <span>{{ item.logistics.logisticsName || '物流轨迹' }}</span>
+                </div>
+                <span
+                  v-for="(track, index) in item.logistics.tracks || []"
+                  :key="index"
+                  class="track-line"
+                >
+                  {{ track.content }}
+                </span>
+                <span v-if="!(item.logistics.tracks || []).length">暂无物流轨迹</span>
+              </article>
+            </div>
+            <div v-if="item.coupons?.length" class="order-list">
+              <article v-for="coupon in item.coupons" :key="coupon.id" class="order-item">
+                <div class="order-head">
+                  <strong>{{ coupon.name || '优惠券' }}</strong>
+                  <span>{{ coupon.statusName || '状态未知' }}</span>
+                </div>
+                <div class="product-stats">
+                  <b v-if="coupon.discountPrice">减￥{{ fenToYuan(coupon.discountPrice) }}</b>
+                  <b v-else-if="coupon.discountPercent">{{ coupon.discountPercent }} 折</b>
+                  <span>满￥{{ fenToYuan(coupon.usePrice || 0) }}可用</span>
+                  <span>{{ coupon.discountTypeName || '' }}</span>
+                </div>
+              </article>
+            </div>
+            <div v-if="item.aftersales?.length" class="order-list">
+              <article v-for="sale in item.aftersales" :key="sale.id || sale.no" class="order-item">
+                <div class="order-head">
+                  <strong>售后 {{ sale.no || sale.id }}</strong>
+                  <span>{{ sale.statusName || '状态未知' }}</span>
+                </div>
+                <span>{{ sale.spuName || '售后商品' }} · 订单 {{ sale.orderNo || '-' }}</span>
+                <div class="product-stats">
+                  <b>退￥{{ fenToYuan(sale.refundPrice || 0) }}</b>
+                  <span>{{ sale.applyReason || '' }}</span>
+                </div>
+              </article>
+            </div>
           </div>
-          <div v-if="item.orders.length" class="order-list">
-            <article v-for="order in item.orders" :key="order.id || order.no" class="order-item">
-              <div class="order-head">
-                <strong>订单 {{ order.no || order.id }}</strong>
-                <span>{{ order.statusName || '状态未知' }}</span>
-              </div>
-              <span>{{ orderItemSummary(order) }}</span>
-              <div class="product-stats">
-                <b>￥{{ fenToYuan(order.payPrice || 0) }}</b>
-                <span>共 {{ order.productCount ?? order.items?.length ?? 0 }} 件</span>
-              </div>
-            </article>
-          </div>
-          <div v-if="item.logistics" class="order-list">
-            <article class="order-item">
-              <div class="order-head">
-                <strong>物流 {{ item.logistics.logisticsNo || item.logistics.orderNo }}</strong>
-                <span>{{ item.logistics.logisticsName || '物流轨迹' }}</span>
-              </div>
-              <span
-                v-for="(track, index) in item.logistics.tracks || []"
-                :key="index"
-                class="track-line"
-              >
-                {{ track.content }}
-              </span>
-              <span v-if="!(item.logistics.tracks || []).length">暂无物流轨迹</span>
-            </article>
-          </div>
-          <div v-if="item.coupons?.length" class="order-list">
-            <article v-for="coupon in item.coupons" :key="coupon.id" class="order-item">
-              <div class="order-head">
-                <strong>{{ coupon.name || '优惠券' }}</strong>
-                <span>{{ coupon.statusName || '状态未知' }}</span>
-              </div>
-              <div class="product-stats">
-                <b v-if="coupon.discountPrice">减￥{{ fenToYuan(coupon.discountPrice) }}</b>
-                <b v-else-if="coupon.discountPercent">{{ coupon.discountPercent }} 折</b>
-                <span>满￥{{ fenToYuan(coupon.usePrice || 0) }}可用</span>
-                <span>{{ coupon.discountTypeName || '' }}</span>
-              </div>
-            </article>
-          </div>
-          <div v-if="item.aftersales?.length" class="order-list">
-            <article v-for="sale in item.aftersales" :key="sale.id || sale.no" class="order-item">
-              <div class="order-head">
-                <strong>售后 {{ sale.no || sale.id }}</strong>
-                <span>{{ sale.statusName || '状态未知' }}</span>
-              </div>
-              <span>{{ sale.spuName || '售后商品' }} · 订单 {{ sale.orderNo || '-' }}</span>
-              <div class="product-stats">
-                <b>退￥{{ fenToYuan(sale.refundPrice || 0) }}</b>
-                <span>{{ sale.applyReason || '' }}</span>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
 
-    <footer class="composer">
-      <el-input
-        v-model="prompt"
-        type="textarea"
-        :rows="3"
-        resize="none"
-        maxlength="8000"
-        show-word-limit
-        placeholder="输入运营问题或商品查询"
-        @keydown.enter.exact.prevent="send()"
-      />
-      <el-tooltip content="发送" placement="top">
-        <el-button
-          type="primary"
-          circle
-          class="send-button"
-          :loading="streaming"
-          :disabled="!prompt.trim()"
-          @click="send()"
-        >
-          <Icon icon="ep:promotion" />
-        </el-button>
-      </el-tooltip>
-    </footer>
+      <footer class="composer">
+        <el-input
+          v-model="prompt"
+          type="textarea"
+          :rows="3"
+          resize="none"
+          maxlength="8000"
+          show-word-limit
+          placeholder="输入运营问题或商品查询"
+          @keydown.enter.exact.prevent="send()"
+        />
+        <el-tooltip content="发送" placement="top">
+          <el-button
+            type="primary"
+            circle
+            class="send-button"
+            :loading="streaming"
+            :disabled="!prompt.trim()"
+            @click="send()"
+          >
+            <Icon icon="ep:promotion" />
+          </el-button>
+        </el-tooltip>
+      </footer>
     </div>
   </div>
 </template>
@@ -392,6 +398,9 @@ onBeforeUnmount(stopStream)
   height: calc(100vh - var(--top-tool-height) - var(--tags-view-height) - 32px);
   min-height: 560px;
   overflow: hidden;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 6px;
 }
 .chat-panel {
   display: grid;
@@ -447,10 +456,6 @@ onBeforeUnmount(stopStream)
   padding: 16px 8px;
   color: var(--el-text-color-secondary);
   font-size: 12px;
-}
-  background: var(--el-bg-color);
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 6px;
 }
 
 .assistant-header {

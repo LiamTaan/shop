@@ -26,7 +26,7 @@
 - `shop-server` 内部令牌校验
 - 统一 SSE：`message` / `tool_result` / `done` / `error`
 - 管理端和移动端共用的请求模型
-- 会话上下文（本地 SQLite）+ 会话列表/重命名/删除/恢复
+- 会话上下文与会话管理（单实例 SQLite、多实例 Redis）
 - 业务工具：商品搜索/详情、订单/物流、优惠券/售后（只读）、管理端运营简报（低库存/热销/滞销）
 - 本地 RAG：`knowledge/*.md` 入库（售后政策/商城规则/FAQ），SQLite FTS 检索增强 system prompt；价库存仍走 tool
 
@@ -54,6 +54,9 @@ data/shop-ai-knowledge.db  # 自动生成的 FTS 索引
 | 会话存储 | `MEMORY_BACKEND=sqlite` | 多实例设 `redis` + `REDIS_URL` |
 
 ### Docker
+
+启动前必须在对应环境文件中设置强随机内部令牌。完整商城栈使用
+`SHOP_AI_INTERNAL_TOKEN`，独立 AI 服务使用 `SHOP_SERVER_INTERNAL_TOKEN`。
 
 全栈（在 `shop-server` 侧）：
 

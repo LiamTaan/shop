@@ -34,12 +34,12 @@ services:
     image: shop-ai-service:local
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       APP_ENV: ${SHOP_AI_APP_ENV:-docker}
       LOG_LEVEL: ${SHOP_AI_LOG_LEVEL:-INFO}
       SHOP_SERVER_BASE_URL: ${SHOP_AI_SHOP_SERVER_BASE_URL:-http://yudao-server:48080}
-      SHOP_SERVER_INTERNAL_TOKEN: ${SHOP_AI_INTERNAL_TOKEN:-shop-ai-internal-change-me}
+      SHOP_SERVER_INTERNAL_TOKEN: ${SHOP_AI_INTERNAL_TOKEN:?SHOP_AI_INTERNAL_TOKEN is required}
       LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
@@ -81,7 +81,7 @@ services:
         --spring.datasource.dynamic.datasource.slave.password=${SLAVE_DATASOURCE_PASSWORD:-123456}
         --spring.data.redis.host=${REDIS_HOST:-yudao-redis}
         --yudao.ai.service.base-url=${SHOP_AI_SERVICE_BASE_URL:-http://shop-ai-service:8000}
-        --yudao.ai.service.internal-token=${SHOP_AI_INTERNAL_TOKEN:-shop-ai-internal-change-me}
+        --yudao.ai.service.internal-token=${SHOP_AI_INTERNAL_TOKEN:?SHOP_AI_INTERNAL_TOKEN is required}
     depends_on:
       - mysql
       - redis

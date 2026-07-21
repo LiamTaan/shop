@@ -12,7 +12,7 @@ from app.api.schemas import (
     ConversationScopeRequest,
 )
 from app.api.events import sse_event
-from app.memory.sqlite import ConversationMemory
+from app.memory.factory import build_memory
 from app.prod import (
     RateLimitExceeded,
     estimate_tokens,
@@ -27,15 +27,16 @@ from app.settings import settings
 
 router = APIRouter(prefix="/internal/v1", tags=["internal"])
 provider = OpenAiCompatibleProvider()
-# Conversation list/rename/delete stay on SQLite (shared metadata store is later).
-# Stream context may use redis when MEMORY_BACKEND=redis via provider.
-memory = ConversationMemory(settings.memory_db_path, settings.memory_max_messages)
+memory = build_memory()
 audit = get_audit_logger()
 
 
 def _assert_internal_token(authorization: str | None) -> None:
     if not settings.shop_server_internal_token:
-        return
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Internal service token is not configured",
+        )
     expected = f"Bearer {settings.shop_server_internal_token}"
     if authorization != expected:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

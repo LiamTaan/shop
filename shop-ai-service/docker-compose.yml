@@ -6,10 +6,11 @@ services:
     build: .
     image: shop-ai-service:local
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     env_file:
       - .env
     environment:
+      SHOP_SERVER_INTERNAL_TOKEN: ${SHOP_SERVER_INTERNAL_TOKEN:?SHOP_SERVER_INTERNAL_TOKEN is required}
       SHOP_SERVER_BASE_URL: ${SHOP_SERVER_BASE_URL:-http://host.docker.internal:48080}
       MEMORY_DB_PATH: /app/data/shop-ai.db
       KNOWLEDGE_DIR: /app/knowledge
