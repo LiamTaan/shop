@@ -13,10 +13,12 @@ import cn.iocoder.yudao.module.product.controller.app.spu.vo.AppProductSpuPageRe
 import cn.iocoder.yudao.module.product.dal.dataobject.category.ProductCategoryDO;
 import cn.iocoder.yudao.module.product.dal.dataobject.sku.ProductSkuDO;
 import cn.iocoder.yudao.module.product.dal.dataobject.spu.ProductSpuDO;
+import cn.iocoder.yudao.module.product.enums.ProductConstants;
 import cn.iocoder.yudao.module.product.enums.spu.ProductSpuStatusEnum;
 import cn.iocoder.yudao.module.product.service.category.ProductCategoryService;
 import cn.iocoder.yudao.module.product.service.sku.ProductSkuService;
 import cn.iocoder.yudao.module.product.service.spu.ProductSpuService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -36,6 +38,7 @@ public class AiProductToolServiceImpl implements AiProductToolService {
     private ProductCategoryService productCategoryService;
 
     @Override
+    @Cacheable(cacheNames = ProductConstants.AI_PRODUCT_SEARCH_CACHE, key = "#request.toString()", sync = true)
     public List<AiProductSearchRespVO> search(AiProductSearchReqVO request) {
         AppProductSpuPageReqVO pageRequest = new AppProductSpuPageReqVO();
         pageRequest.setPageNo(1);
@@ -68,6 +71,7 @@ public class AiProductToolServiceImpl implements AiProductToolService {
     }
 
     @Override
+    @Cacheable(cacheNames = ProductConstants.AI_PRODUCT_DETAIL_CACHE, key = "#request.productId", sync = true)
     public AiProductDetailRespVO getDetail(AiProductDetailReqVO request) {
         ProductSpuDO spu = productSpuService.getSpu(request.getProductId());
         if (spu == null || !ProductSpuStatusEnum.isEnable(spu.getStatus())) {

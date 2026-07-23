@@ -213,6 +213,8 @@ ADMIN_TOOLS = [
     },
 ]
 
+MAX_TOOL_CALLS_PER_TURN = 3
+
 
 def tools_for(request: ChatRequest) -> list[dict]:
     if request.user_type == "ADMIN":
@@ -286,9 +288,16 @@ class OpenAiCompatibleProvider:
             yield from text_events(assistant_content, message_id)
             return
 
-        messages.append(assistant_message.model_dump(exclude_none=True))
+        selected_tool_calls = assistant_message.tool_calls[:MAX_TOOL_CALLS_PER_TURN]
+        messages.append(
+            assistant_message.model_copy(update={"tool_calls": selected_tool_calls}).model_dump(
+                exclude_none=True
+            )
+        )
         tool_results: list[dict] = []
-        for tool_call in assistant_message.tool_calls:
+        # Bound a single model turn so it cannot fan out into an unbounded number of
+        # live database-backed tool calls.
+        for tool_call in selected_tool_calls:
             tool_payload = self._run_tool(request, tool_call.function.name, tool_call.function.arguments)
             if tool_payload is not None:
                 tool_results.append(tool_payload)

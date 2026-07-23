@@ -15,12 +15,14 @@ import cn.iocoder.yudao.module.product.controller.app.spu.vo.AppProductSpuPageRe
 import cn.iocoder.yudao.module.product.dal.dataobject.category.ProductCategoryDO;
 import cn.iocoder.yudao.module.product.dal.dataobject.spu.ProductSpuDO;
 import cn.iocoder.yudao.module.product.dal.mysql.spu.ProductSpuMapper;
+import cn.iocoder.yudao.module.product.enums.ProductConstants;
 import cn.iocoder.yudao.module.product.enums.spu.ProductSpuStatusEnum;
 import cn.iocoder.yudao.module.product.service.brand.ProductBrandService;
 import cn.iocoder.yudao.module.product.service.category.ProductCategoryService;
 import cn.iocoder.yudao.module.product.service.sku.ProductSkuService;
 import com.google.common.collect.Maps;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,9 @@ public class ProductSpuServiceImpl implements ProductSpuService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public Long createSpu(ProductSpuSaveReqVO createReqVO) {
         // 校验分类、品牌
         validateCategory(createReqVO.getCategoryId());
@@ -76,6 +81,9 @@ public class ProductSpuServiceImpl implements ProductSpuService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void updateSpu(ProductSpuSaveReqVO updateReqVO) {
         // 校验 SPU 是否存在
         ProductSpuDO spu = validateSpuExists(updateReqVO.getId());
@@ -159,6 +167,9 @@ public class ProductSpuServiceImpl implements ProductSpuService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void deleteSpu(Long id) {
         // 校验存在
         validateSpuExists(id);
@@ -239,12 +250,18 @@ public class ProductSpuServiceImpl implements ProductSpuService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void updateSpuStock(Map<Long, Integer> stockIncrCounts) {
         stockIncrCounts.forEach((id, incCount) -> productSpuMapper.updateStock(id, incCount));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void updateSpuStatus(ProductSpuUpdateStatusReqVO updateReqVO) {
         // 校验存在
         validateSpuExists(updateReqVO.getId());

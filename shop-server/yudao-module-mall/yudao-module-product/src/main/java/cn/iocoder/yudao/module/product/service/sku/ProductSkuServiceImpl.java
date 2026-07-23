@@ -11,10 +11,12 @@ import cn.iocoder.yudao.module.product.dal.dataobject.property.ProductPropertyDO
 import cn.iocoder.yudao.module.product.dal.dataobject.property.ProductPropertyValueDO;
 import cn.iocoder.yudao.module.product.dal.dataobject.sku.ProductSkuDO;
 import cn.iocoder.yudao.module.product.dal.mysql.sku.ProductSkuMapper;
+import cn.iocoder.yudao.module.product.enums.ProductConstants;
 import cn.iocoder.yudao.module.product.service.property.ProductPropertyService;
 import cn.iocoder.yudao.module.product.service.property.ProductPropertyValueService;
 import cn.iocoder.yudao.module.product.service.spu.ProductSpuService;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,9 @@ public class ProductSkuServiceImpl implements ProductSkuService {
     private ProductPropertyValueService productPropertyValueService;
 
     @Override
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void deleteSku(Long id) {
         // 校验存在
         validateSkuExists(id);
@@ -143,6 +148,9 @@ public class ProductSkuServiceImpl implements ProductSkuService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void createSkuList(Long spuId, List<ProductSkuSaveReqVO> skuCreateReqList) {
         List<ProductSkuDO> skus = BeanUtils.toBean(skuCreateReqList, ProductSkuDO.class, sku -> sku.setSpuId(spuId).setSalesCount(0));
         productSkuMapper.insertBatch(skus);
@@ -162,11 +170,15 @@ public class ProductSkuServiceImpl implements ProductSkuService {
     }
 
     @Override
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void deleteSkuBySpuId(Long spuId) {
         productSkuMapper.deleteBySpuId(spuId);
     }
 
     @Override
+    @CacheEvict(cacheNames = ProductConstants.AI_PRODUCT_DETAIL_CACHE, allEntries = true)
     public int updateSkuProperty(Long propertyId, String propertyName) {
         // 获取所有的 sku
         List<ProductSkuDO> skuDOList = productSkuMapper.selectList();
@@ -191,6 +203,7 @@ public class ProductSkuServiceImpl implements ProductSkuService {
     }
 
     @Override
+    @CacheEvict(cacheNames = ProductConstants.AI_PRODUCT_DETAIL_CACHE, allEntries = true)
     public int updateSkuPropertyValue(Long propertyValueId, String propertyValueName) {
         // 获取所有的 sku
         List<ProductSkuDO> skuDOList = productSkuMapper.selectList();
@@ -217,6 +230,9 @@ public class ProductSkuServiceImpl implements ProductSkuService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void updateSkuList(Long spuId, List<ProductSkuSaveReqVO> skus) {
         // 构建属性与 SKU 的映射关系;
         Map<String, Long> existsSkuMap = convertMap(productSkuMapper.selectListBySpuId(spuId),
@@ -254,6 +270,9 @@ public class ProductSkuServiceImpl implements ProductSkuService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {ProductConstants.AI_PRODUCT_SEARCH_CACHE, ProductConstants.AI_PRODUCT_DETAIL_CACHE,
+            ProductConstants.AI_OPS_LOW_STOCK_CACHE, ProductConstants.AI_OPS_BRIEF_CACHE,
+            ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE}, allEntries = true)
     public void updateSkuStock(ProductSkuUpdateStockReqDTO updateStockReqDTO) {
         // 更新 SKU 库存
         updateStockReqDTO.getItems().forEach(item -> {

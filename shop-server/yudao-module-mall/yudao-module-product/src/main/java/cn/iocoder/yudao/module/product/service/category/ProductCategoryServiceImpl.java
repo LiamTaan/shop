@@ -8,8 +8,10 @@ import cn.iocoder.yudao.module.product.controller.admin.category.vo.ProductCateg
 import cn.iocoder.yudao.module.product.controller.admin.category.vo.ProductCategorySaveReqVO;
 import cn.iocoder.yudao.module.product.dal.dataobject.category.ProductCategoryDO;
 import cn.iocoder.yudao.module.product.dal.mysql.category.ProductCategoryMapper;
+import cn.iocoder.yudao.module.product.enums.ProductConstants;
 import cn.iocoder.yudao.module.product.service.spu.ProductSpuService;
 import jakarta.annotation.Resource;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -40,6 +42,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     private ProductSpuService productSpuService;
 
     @Override
+    @CacheEvict(cacheNames = ProductConstants.AI_PRODUCT_SEARCH_CACHE, allEntries = true)
     public Long createCategory(ProductCategorySaveReqVO createReqVO) {
         // 校验父分类存在
         validateParentProductCategory(createReqVO.getParentId());
@@ -52,6 +55,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
+    @CacheEvict(cacheNames = ProductConstants.AI_PRODUCT_SEARCH_CACHE, allEntries = true)
     public void updateCategory(ProductCategorySaveReqVO updateReqVO) {
         // 校验分类是否存在
         validateProductCategoryExists(updateReqVO.getId());
@@ -64,6 +68,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
+    @CacheEvict(cacheNames = ProductConstants.AI_PRODUCT_SEARCH_CACHE, allEntries = true)
     public void deleteCategory(Long id) {
         // 校验分类是否存在
         validateProductCategoryExists(id);

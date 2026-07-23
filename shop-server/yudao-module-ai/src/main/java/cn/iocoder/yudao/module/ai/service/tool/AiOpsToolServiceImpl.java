@@ -11,6 +11,7 @@ import cn.iocoder.yudao.module.product.dal.mysql.spu.ProductSpuMapper;
 import cn.iocoder.yudao.module.product.enums.ProductConstants;
 import cn.iocoder.yudao.module.product.enums.spu.ProductSpuStatusEnum;
 import cn.iocoder.yudao.module.product.service.spu.ProductSpuService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -28,6 +29,7 @@ public class AiOpsToolServiceImpl implements AiOpsToolService {
     private ProductSpuMapper productSpuMapper;
 
     @Override
+    @Cacheable(cacheNames = ProductConstants.AI_OPS_LOW_STOCK_CACHE, key = "#request.toString()", sync = true)
     public List<AiOpsProductRespVO> listLowStock(AiOpsProductListReqVO request) {
         int limit = limitOf(request);
         int threshold = request.getStockThreshold() == null
@@ -51,6 +53,7 @@ public class AiOpsToolServiceImpl implements AiOpsToolService {
     }
 
     @Override
+    @Cacheable(cacheNames = ProductConstants.AI_OPS_HOT_PRODUCTS_CACHE, key = "#request.toString()", sync = true)
     public List<AiOpsProductRespVO> listHotProducts(AiOpsProductListReqVO request) {
         int limit = limitOf(request);
         List<ProductSpuDO> list = productSpuMapper.selectList(new LambdaQueryWrapperX<ProductSpuDO>()
@@ -62,6 +65,7 @@ public class AiOpsToolServiceImpl implements AiOpsToolService {
     }
 
     @Override
+    @Cacheable(cacheNames = ProductConstants.AI_OPS_SLOW_PRODUCTS_CACHE, key = "#request.toString()", sync = true)
     public List<AiOpsProductRespVO> listSlowProducts(AiOpsProductListReqVO request) {
         int limit = limitOf(request);
         int maxSales = request.getMaxSalesCount() == null ? 5 : request.getMaxSalesCount();
@@ -77,6 +81,7 @@ public class AiOpsToolServiceImpl implements AiOpsToolService {
     }
 
     @Override
+    @Cacheable(cacheNames = ProductConstants.AI_OPS_BRIEF_CACHE, key = "#request.toString()", sync = true)
     public AiOpsBriefRespVO getBrief(AiOpsProductListReqVO request) {
         int limit = limitOf(request);
         ProductSpuPageReqVO countReq = new ProductSpuPageReqVO();
