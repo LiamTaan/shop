@@ -119,15 +119,16 @@
     currentPropertyArray: {}, // 当前选中的属性，实际是个 Map。key 是 property 编号，value 是 value 编号
   });
 
-  const propertyList = convertProductPropertyList(props.goodsInfo.skus);
-  // SKU 列表
+  // 商品详情异步加载后重新计算，避免首次渲染时读取空的 SKU 数据。
   const skuList = computed(() => {
-    let skuPrices = props.goodsInfo.skus;
-    for (let price of skuPrices) {
-      price.value_id_array = price.properties.map((item) => item.valueId);
-    }
-    return skuPrices;
+    const skus = Array.isArray(props.goodsInfo?.skus) ? props.goodsInfo.skus : [];
+    return skus.map((sku) => ({
+      ...sku,
+      properties: Array.isArray(sku.properties) ? sku.properties : [],
+      value_id_array: (sku.properties || []).map((item) => item.valueId),
+    }));
   });
+  const propertyList = computed(() => convertProductPropertyList(skuList.value));
 
   watch(
     () => state.selectedSku,
@@ -235,15 +236,15 @@
       choosePropertyIds = [propertyId];
     }
 
-    for (let propertyIndex in propertyList) {
+    for (let propertyIndex in propertyList.value) {
       // 当前点击的 property、或者取消选择时候，已选中的 property 不进行处理
-      if (choosePropertyIds.indexOf(propertyList[propertyIndex]['id']) >= 0) {
+      if (choosePropertyIds.indexOf(propertyList.value[propertyIndex]['id']) >= 0) {
         continue;
       }
       // 如果当前 property id 不存在于有库存的 SKU 中，则禁用
-      for (let valueIndex in propertyList[propertyIndex]['values']) {
-        propertyList[propertyIndex]['values'][valueIndex]['disabled'] =
-          noChooseValueIds.indexOf(propertyList[propertyIndex]['values'][valueIndex]['id']) < 0; // true 禁用 or false 不禁用
+      for (let valueIndex in propertyList.value[propertyIndex]['values']) {
+        propertyList.value[propertyIndex]['values'][valueIndex]['disabled'] =
+          noChooseValueIds.indexOf(propertyList.value[propertyIndex]['values'][valueIndex]['id']) < 0; // true 禁用 or false 不禁用
       }
     }
   }
@@ -279,7 +280,7 @@
     ) {
       // 点击已被选中的，删除并填充 ''
       isChecked = false;
-      state.currentPropertyArray.splice(propertyId, 1, '');
+      state.currentPropertyArray[propertyId] = '';
     } else {
       // 选中
       state.currentPropertyArray[propertyId] = valueId;
@@ -298,7 +299,7 @@
     let newSkuList = getCanUseSkuList();
 
     // 判断所有 property 大类是否选择完成
-    if (choosePropertyId.length === propertyList.length && newSkuList.length) {
+    if (choosePropertyId.length === propertyList.value.length && newSkuList.length) {
       newSkuList[0].goods_num = state.selectedSku.goods_num || 1;
       state.selectedSku = newSkuList[0];
     } else {
@@ -309,9 +310,21 @@
     changeDisabled(isChecked, propertyId, valueId);
   }
 
-  changeDisabled(false);
-  // 初始化默认选中规格中的第一个，如果不需要，注释这段代码即可
-  initDefaultSelect(propertyList, onSelectSku);
+  function initializeSelection() {
+    state.currentPropertyArray = {};
+    const availableSkus = skuList.value.filter((sku) => sku.stock > 0);
+
+    // 单规格商品没有可选属性，直接选中唯一可售 SKU。
+    if (propertyList.value.length === 0) {
+      state.selectedSku = availableSkus[0] ? { ...availableSkus[0], goods_num: 1 } : {};
+      return;
+    }
+
+    changeDisabled(false);
+    initDefaultSelect(propertyList.value, onSelectSku);
+  }
+
+  watch(skuList, initializeSelection, { immediate: true });
 </script>
 
 <style lang="scss" scoped>

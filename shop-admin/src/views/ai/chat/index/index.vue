@@ -67,6 +67,10 @@
               <MarkdownView v-if="item.role === 'assistant'" :content="item.content" />
               <span v-else>{{ item.content }}</span>
             </div>
+            <div v-if="item.pending" class="thinking-bubble">
+              <Icon icon="ep:loading" class="thinking-icon" />
+              <span>{{ item.status || 'AI 正在思考…' }}</span>
+            </div>
             <div v-if="item.products.length" class="product-list">
               <article v-for="product in item.products" :key="product.id" class="product-item">
                 <el-image :src="product.picUrl" fit="cover" class="product-image">
@@ -81,7 +85,7 @@
                     <span>销量 {{ product.salesCount ?? 0 }}</span>
                   </div>
                 </div>
-                <el-button type="primary" link @click="openProduct(product.id)">
+                <el-button type="primary" link @click="openProduct(product)">
                   查看商品
                   <Icon icon="ep:arrow-right" />
                 </el-button>
@@ -163,11 +167,10 @@
             type="primary"
             circle
             class="send-button"
-            :loading="streaming"
-            :disabled="!prompt.trim()"
+            :disabled="streaming || !prompt.trim()"
             @click="send()"
           >
-            <Icon icon="ep:promotion" />
+            <Icon icon="ep:promotion" :size="18" />
           </el-button>
         </el-tooltip>
       </footer>
@@ -200,6 +203,8 @@ interface AssistantMessage {
   logistics: AiLogisticsCard | null
   coupons: AiCouponCard[]
   aftersales: AiAfterSaleCard[]
+  pending?: boolean
+  status?: string
 }
 
 interface ConversationItem {
@@ -242,16 +247,25 @@ const openConversation = async (id: string) => {
   try {
     const data = await ChatMessageApi.getConversationMessages(id)
     const items = data?.items || []
-    messages.value = items.map((item: any, index: number) => ({
-      id: Date.now() + index,
-      role: item.role === 'user' ? 'user' : 'assistant',
-      content: item.content || '',
-      products: [],
-      orders: [],
-      logistics: null,
-      coupons: [],
-      aftersales: []
-    }))
+    messages.value = items.map((item: any, index: number) => {
+      const target: AssistantMessage = {
+        id: Date.now() + index,
+        role: item.role === 'user' ? 'user' : 'assistant',
+        content: item.content || '',
+        products: [],
+        orders: [],
+        logistics: null,
+        coupons: [],
+        aftersales: [],
+        pending: false,
+        status: ''
+      }
+      if (target.role === 'assistant') {
+        const toolResults = item.toolResults || []
+        toolResults.forEach((event: ShopAssistantEvent) => applyEvent(target, event))
+      }
+      return target
+    })
     await scrollToBottom()
   } catch {
     message.error('加载会话失败')
@@ -286,7 +300,7 @@ const scrollToBottom = async () => {
   }
 }
 
-const handleEvent = (target: AssistantMessage, event: ShopAssistantEvent) => {
+const applyEvent = (target: AssistantMessage, event: ShopAssistantEvent) => {
   if (event.type === 'text_delta') target.content += event.content || ''
   if (event.type === 'product_list') target.products = event.items || []
   if (event.type === 'product_detail' && event.item) target.products = [event.item as AiProductItem]
@@ -312,8 +326,34 @@ const handleEvent = (target: AssistantMessage, event: ShopAssistantEvent) => {
       ...(brief.slowItems || [])
     ] as AiProductItem[]
   }
-  if (event.type === 'done') streaming.value = false
+}
+
+const handleEvent = (target: AssistantMessage, event: ShopAssistantEvent) => {
+  const statusMap: Partial<Record<ShopAssistantEvent['type'], string>> = {
+    product_list: '正在整理商品信息…',
+    product_detail: '正在整理商品信息…',
+    order_list: '正在查询订单信息…',
+    order_detail: '正在查询订单信息…',
+    logistics: '正在查询物流信息…',
+    coupon_list: '正在查询优惠信息…',
+    aftersale_list: '正在查询售后信息…',
+    aftersale_detail: '正在查询售后信息…',
+    ops_product_list: '正在整理运营数据…',
+    ops_brief: '正在整理运营数据…',
+    knowledge_list: '正在检索知识库…'
+  }
+  if (event.type === 'text_delta') target.pending = false
+  if (statusMap[event.type]) {
+    target.pending = true
+    target.status = statusMap[event.type]
+  }
+  applyEvent(target, event)
+  if (event.type === 'done') {
+    target.pending = false
+    streaming.value = false
+  }
   if (event.type === 'error') {
+    target.pending = false
     streaming.value = false
     message.error(event.message || 'AI 请求失败')
   }
@@ -343,7 +383,9 @@ const send = async (preset?: string) => {
     orders: [],
     logistics: null,
     coupons: [],
-    aftersales: []
+    aftersales: [],
+    pending: true,
+    status: 'AI 正在思考…'
   }
   messages.value.push(assistant)
   streaming.value = true
@@ -358,13 +400,19 @@ const send = async (preset?: string) => {
       (event) => handleEvent(assistant, event),
       () => {
         streaming.value = false
+        assistant.pending = false
         if (!controller?.signal.aborted) message.error('AI 服务连接失败')
       },
       () => {
         streaming.value = false
+        if (assistant.pending) {
+          assistant.pending = false
+          assistant.content ||= '暂未收到回复，请稍后重试。'
+        }
       }
     )
   } catch (error) {
+    assistant.pending = false
     if (!controller.signal.aborted) {
       assistant.content ||= '请求失败，请稍后重试。'
     }
@@ -376,6 +424,13 @@ const send = async (preset?: string) => {
 const stopStream = () => {
   controller?.abort()
   streaming.value = false
+  const pendingMessage = [...messages.value]
+    .reverse()
+    .find((item) => item.role === 'assistant' && item.pending)
+  if (pendingMessage) {
+    pendingMessage.pending = false
+    pendingMessage.content ||= '已停止生成。'
+  }
 }
 
 const clearMessages = () => {
@@ -384,8 +439,14 @@ const clearMessages = () => {
   loadConversations()
 }
 
-const openProduct = (id: number) => {
-  router.push({ name: 'ProductSpuDetail', params: { id } })
+const openProduct = (product: AiProductItem) => {
+  // AI cards can contain a SKU id as their generic `id`. The detail route only accepts an SPU id.
+  const spuId = product.spuId ?? product.id
+  if (!spuId) {
+    message.error('商品编号缺失，无法查看详情')
+    return
+  }
+  router.push({ name: 'ProductSpuDetail', params: { id: spuId } })
 }
 
 onBeforeUnmount(stopStream)
@@ -406,10 +467,13 @@ onBeforeUnmount(stopStream)
   display: grid;
   grid-template-rows: 64px minmax(0, 1fr) auto;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 .conversation-rail {
   display: flex;
   flex-direction: column;
+  min-height: 0;
   border-right: 1px solid var(--el-border-color-light);
   background: var(--el-bg-color);
 }
@@ -482,6 +546,7 @@ onBeforeUnmount(stopStream)
   gap: 10px;
 }
 .message-list {
+  min-height: 0;
   overflow-y: auto;
   padding: 24px max(24px, calc((100% - 900px) / 2));
   background: var(--el-fill-color-extra-light);
@@ -612,8 +677,32 @@ onBeforeUnmount(stopStream)
 }
 .composer {
   position: relative;
+  z-index: 1;
+  flex: none;
   padding: 16px max(24px, calc((100% - 900px) / 2));
+  background: var(--el-bg-color);
   border-top: 1px solid var(--el-border-color-light);
+}
+.thinking-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 6px;
+}
+.thinking-icon {
+  color: var(--el-color-primary);
+  animation: thinking-spin 0.9s linear infinite;
+}
+@keyframes thinking-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .composer :deep(.el-textarea__inner) {
   padding-right: 56px;

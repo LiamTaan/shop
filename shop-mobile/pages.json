@@ -85,6 +85,20 @@
 		}
 	],
 	"subPackages": [{
+			"root": "pages/message",
+			"pages": [{
+					"path": "index",
+					"style": {
+						"navigationBarTitleText": "消息"
+					},
+					"meta": {
+						"auth": true,
+						"sync": true,
+						"title": "消息",
+						"group": "商城"
+					}
+				}]
+		}, {
 			"root": "pages/ai",
 			"pages": [{
 					"path": "index",

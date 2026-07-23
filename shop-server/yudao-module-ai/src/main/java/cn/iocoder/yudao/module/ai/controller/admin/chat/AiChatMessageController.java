@@ -36,36 +36,42 @@ public class AiChatMessageController {
     @PostMapping(value = "/send-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "Send a streaming AI chat message")
     public SseEmitter sendStream(@Valid @RequestBody AiChatMessageSendReqVO request) {
-        return aiChatService.sendStream(TenantContextHolder.getRequiredTenantId(), getLoginUserId(),
+        return aiChatService.sendStream(resolveTenantId(), getLoginUserId(),
                 UserTypeEnum.ADMIN.name(), request);
     }
 
     @PostMapping("/conversation/list")
     @Operation(summary = "List AI conversations")
     public CommonResult<Map<String, Object>> listConversations() {
-        return success(aiChatService.listConversations(TenantContextHolder.getRequiredTenantId(),
+        return success(aiChatService.listConversations(resolveTenantId(),
                 getLoginUserId(), UserTypeEnum.ADMIN.name()));
     }
 
     @PostMapping("/conversation/messages")
     @Operation(summary = "Get AI conversation messages")
     public CommonResult<Map<String, Object>> getMessages(@Valid @RequestBody AiConversationIdReqVO request) {
-        return success(aiChatService.getConversationMessages(TenantContextHolder.getRequiredTenantId(),
+        return success(aiChatService.getConversationMessages(resolveTenantId(),
                 getLoginUserId(), UserTypeEnum.ADMIN.name(), request));
     }
 
     @PostMapping("/conversation/rename")
     @Operation(summary = "Rename AI conversation")
     public CommonResult<Map<String, Object>> rename(@Valid @RequestBody AiConversationRenameReqVO request) {
-        return success(aiChatService.renameConversation(TenantContextHolder.getRequiredTenantId(),
+        return success(aiChatService.renameConversation(resolveTenantId(),
                 getLoginUserId(), UserTypeEnum.ADMIN.name(), request));
     }
 
     @PostMapping("/conversation/delete")
     @Operation(summary = "Delete AI conversation")
     public CommonResult<Map<String, Object>> delete(@Valid @RequestBody AiConversationIdReqVO request) {
-        return success(aiChatService.deleteConversation(TenantContextHolder.getRequiredTenantId(),
+        return success(aiChatService.deleteConversation(resolveTenantId(),
                 getLoginUserId(), UserTypeEnum.ADMIN.name(), request));
+    }
+
+    private Long resolveTenantId() {
+        Long tenantId = TenantContextHolder.getTenantId();
+        // The mall runs in single-tenant mode by default.
+        return tenantId != null ? tenantId : 1L;
     }
 
 }

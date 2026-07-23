@@ -110,6 +110,22 @@ def test_redis_memory_keeps_recent_messages_and_scope() -> None:
     assert backend.get_recent(request("conversation-a", tenant_id=2)) == []
 
 
+def test_redis_memory_keeps_assistant_tool_results() -> None:
+    backend = memory()
+    current = request("conversation-a")
+    tool_results = [{"type": "ops_product_list", "items": [{"spuId": 20017}]}]
+
+    backend.append_exchange(current, "热销商品", "为你找到以下商品", tool_results)
+
+    messages = backend.get_messages(
+        tenant_id=1,
+        user_id=100,
+        user_type="APP",
+        conversation_id="conversation-a",
+    )
+    assert messages[1]["toolResults"] == tool_results
+
+
 def test_redis_conversation_list_rename_delete() -> None:
     backend = memory()
     current = request("conversation-a")

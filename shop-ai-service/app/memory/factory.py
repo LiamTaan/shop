@@ -15,7 +15,11 @@ class MemoryBackend(Protocol):
     def get_recent(self, request: ChatRequest) -> list[dict[str, str]]: ...
 
     def append_exchange(
-        self, request: ChatRequest, user_content: str, assistant_content: str
+        self,
+        request: ChatRequest,
+        user_content: str,
+        assistant_content: str,
+        tool_results: list[dict] | None = None,
     ) -> None: ...
 
     def list_conversations(
@@ -103,7 +107,11 @@ class RedisConversationMemory:
         ]
 
     def append_exchange(
-        self, request: ChatRequest, user_content: str, assistant_content: str
+        self,
+        request: ChatRequest,
+        user_content: str,
+        assistant_content: str,
+        tool_results: list[dict] | None = None,
     ) -> None:
         if not request.use_context or not request.conversation_id or not assistant_content:
             return
@@ -135,6 +143,7 @@ class RedisConversationMemory:
                     "role": "assistant",
                     "content": assistant_content,
                     "createTime": updated_time,
+                    "toolResults": tool_results or [],
                 },
                 ensure_ascii=False,
             ),

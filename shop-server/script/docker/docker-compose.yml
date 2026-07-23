@@ -66,6 +66,8 @@ services:
     environment:
       # https://github.com/polovyivan/docker-pass-configs-to-container
       SPRING_PROFILES_ACTIVE: local
+      WX_MINIAPP_APPID: ${WX_MINIAPP_APPID:?WX_MINIAPP_APPID is required}
+      WX_MINIAPP_SECRET: ${WX_MINIAPP_SECRET:?WX_MINIAPP_SECRET is required}
       JAVA_OPTS:
         ${JAVA_OPTS:-
           -Xms512m

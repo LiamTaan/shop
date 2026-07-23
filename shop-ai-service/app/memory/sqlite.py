@@ -1,3 +1,4 @@
+import json
 import sqlite3
 import threading
 from pathlib import Path
@@ -80,7 +81,7 @@ class ConversationMemory:
         with self._connect() as connection:
             rows = connection.execute(
                 """
-                SELECT role, content, create_time
+                SELECT role, content, create_time, tool_results
                 FROM ai_conversation_message
                 WHERE tenant_id = ? AND user_id = ? AND user_type = ? AND conversation_id = ?
                 ORDER BY id ASC
@@ -95,7 +96,12 @@ class ConversationMemory:
                 ),
             ).fetchall()
         return [
-            {"role": row[0], "content": row[1], "createTime": row[2]}
+            {
+                "role": row[0],
+                "content": row[1],
+                "createTime": row[2],
+                "toolResults": json.loads(row[3]) if row[3] else [],
+            }
             for row in rows
         ]
 
@@ -160,7 +166,13 @@ class ConversationMemory:
             )
         return True
 
-    def append_exchange(self, request: ChatRequest, user_content: str, assistant_content: str) -> None:
+    def append_exchange(
+        self,
+        request: ChatRequest,
+        user_content: str,
+        assistant_content: str,
+        tool_results: list[dict] | None = None,
+    ) -> None:
         if not request.use_context or not request.conversation_id or not assistant_content:
             return
         self._initialize()
@@ -175,12 +187,12 @@ class ConversationMemory:
             connection.executemany(
                 """
                 INSERT INTO ai_conversation_message
-                    (tenant_id, user_id, user_type, conversation_id, role, content)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (tenant_id, user_id, user_type, conversation_id, role, content, tool_results)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 [
-                    (*values, "user", user_content),
-                    (*values, "assistant", assistant_content),
+                    (*values, "user", user_content, None),
+                    (*values, "assistant", assistant_content, json.dumps(tool_results or [], ensure_ascii=False)),
                 ],
             )
             connection.execute(
@@ -229,10 +241,19 @@ class ConversationMemory:
                         conversation_id TEXT NOT NULL,
                         role TEXT NOT NULL,
                         content TEXT NOT NULL,
+                        tool_results TEXT,
                         create_time TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )
                     """
                 )
+                columns = {
+                    row[1]
+                    for row in connection.execute("PRAGMA table_info(ai_conversation_message)")
+                }
+                if "tool_results" not in columns:
+                    connection.execute(
+                        "ALTER TABLE ai_conversation_message ADD COLUMN tool_results TEXT"
+                    )
                 connection.execute(
                     """
                     CREATE INDEX IF NOT EXISTS idx_ai_conversation_message_scope

@@ -217,8 +217,16 @@
 
   // 微信小程序的“手机号快速验证”：https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/getPhoneNumber.html
   const getPhoneNumber = async (e) => {
+    if (state.protocol !== true) {
+      currentProtocol.value = true;
+      setTimeout(() => {
+        currentProtocol.value = false;
+      }, 1000);
+      sheep.$helper.toast('请先阅读并同意用户协议和隐私协议');
+      return;
+    }
     if (e.detail.errMsg !== 'getPhoneNumber:ok') {
-      sheep.$helper.toast('快捷登录失败');
+      sheep.$helper.toast('已取消手机号授权');
       return;
     }
     let result = await sheep.$platform.useProvider().mobileLogin(e.detail);

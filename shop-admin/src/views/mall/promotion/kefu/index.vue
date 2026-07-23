@@ -106,12 +106,11 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .kefu-layout {
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: flex;
   width: 100%;
-  height: 100%;
-  flex: 1;
+  height: calc(100vh - var(--top-tool-height) - var(--tags-view-height) - 32px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* 定义滚动条样式 */

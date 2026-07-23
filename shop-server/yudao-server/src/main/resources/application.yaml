@@ -168,7 +168,7 @@ yudao:
     unit-test-enable: false # 是否生成单元测试
     import-enable: false # 是否生成 Excel 导入接口
   tenant: # 多租户相关配置项
-    enable: true
+    enable: false
     ignore-urls: []
     ignore-visit-urls:
       - /admin-api/system/user/profile/**

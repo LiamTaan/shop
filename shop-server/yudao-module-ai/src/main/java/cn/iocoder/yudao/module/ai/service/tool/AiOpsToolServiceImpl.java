@@ -116,6 +116,7 @@ public class AiOpsToolServiceImpl implements AiOpsToolService {
                 + (spu.getVirtualSalesCount() == null ? 0 : spu.getVirtualSalesCount());
         return new AiOpsProductRespVO()
                 .setId(spu.getId())
+                .setSpuId(spu.getId())
                 .setName(spu.getName())
                 .setPicUrl(spu.getPicUrl())
                 .setPrice(spu.getPrice())

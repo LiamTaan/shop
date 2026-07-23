@@ -1,7 +1,7 @@
 <template>
   <s-layout
     class="chat-wrap"
-    :title="!isReconnecting ? '连接客服成功' : '会话重连中'"
+    :title="!isReconnecting ? '商城客服' : '会话重连中'"
     navbar="inner"
   >
     <!--  覆盖头部导航栏背景颜色  -->

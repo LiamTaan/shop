@@ -55,6 +55,7 @@
 
   const { safeAreaInsets } = sheep.$platform.device;
   const safeAreaInsetsBottom = safeAreaInsets.bottom + 'px'; // 底部安全区域
+  const navbarHeight = sheep.$platform.navbar + 'px';
   const messageList = ref([]); // 消息列表
   const showTip = ref(false); // 显示提示
   const showNewMessageTip = ref(false); // 显示有新消息提示
@@ -74,7 +75,7 @@
 
   // 计算聊天窗口高度
   const chatScrollHeight = computed(() => {
-    const baseHeight = 'calc(100vh - 150px - ' + safeAreaInsetsBottom + ')';
+    const baseHeight = `calc(100vh - ${navbarHeight} - 64px - ${safeAreaInsetsBottom})`;
     if (keyboardHeight.value > 0) {
       // 键盘弹起状态，减去键盘高度
       return `calc(${baseHeight} - ${keyboardHeight.value}px)`;

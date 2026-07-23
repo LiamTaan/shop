@@ -108,6 +108,11 @@ public class KeFuMessageServiceImpl implements KeFuMessageService {
         // 1.3 查询会话所有的未读消息 (tips: 多个客服，一个人点了，就都点了)
         List<KeFuMessageDO> messageList = keFuMessageMapper.selectListByConversationIdAndUserTypeAndReadStatus(conversationId, userType, Boolean.FALSE);
         if (CollUtil.isEmpty(messageList)) {
+            // The stored counter can be stale after an earlier read operation. Reconcile it whenever an
+            // administrator confirms this conversation has no unread member messages.
+            if (UserTypeEnum.ADMIN.getValue().equals(userType)) {
+                conversationService.updateAdminUnreadMessageCountToZero(conversationId);
+            }
             return;
         }
 

@@ -76,6 +76,7 @@ public class AiProductToolServiceImpl implements AiProductToolService {
         List<ProductSkuDO> skus = productSkuService.getSkuListBySpuId(spu.getId());
         AiProductDetailRespVO detail = new AiProductDetailRespVO()
                 .setId(spu.getId())
+                .setSpuId(spu.getId())
                 .setName(spu.getName())
                 .setIntroduction(spu.getIntroduction())
                 .setDescription(StrUtil.maxLength(spu.getDescription(), 500))
@@ -130,6 +131,7 @@ public class AiProductToolServiceImpl implements AiProductToolService {
     private AiProductSearchRespVO convert(ProductSpuDO spu) {
         return new AiProductSearchRespVO()
                 .setId(spu.getId())
+                .setSpuId(spu.getId())
                 .setName(spu.getName())
                 .setIntroduction(spu.getIntroduction())
                 .setPicUrl(spu.getPicUrl())

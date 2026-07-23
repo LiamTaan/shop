@@ -287,9 +287,11 @@ class OpenAiCompatibleProvider:
             return
 
         messages.append(assistant_message.model_dump(exclude_none=True))
+        tool_results: list[dict] = []
         for tool_call in assistant_message.tool_calls:
             tool_payload = self._run_tool(request, tool_call.function.name, tool_call.function.arguments)
             if tool_payload is not None:
+                tool_results.append(tool_payload)
                 yield sse_event("tool_result", tool_payload)
             messages.append(
                 {
@@ -313,7 +315,12 @@ class OpenAiCompatibleProvider:
             if content:
                 assistant_content_parts.append(content)
                 yield sse_event("message", {"type": "text_delta", "content": content})
-        self.memory.append_exchange(request, request.message, "".join(assistant_content_parts))
+        self.memory.append_exchange(
+            request,
+            request.message,
+            "".join(assistant_content_parts),
+            tool_results,
+        )
         yield sse_event("done", {"type": "done", "messageId": message_id})
 
     def _run_tool(self, request: ChatRequest, name: str, raw_arguments: str | None) -> dict | None:

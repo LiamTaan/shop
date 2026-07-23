@@ -3,7 +3,7 @@
     <el-header class="kefu-header">
       <div class="kefu-title">{{ conversation.userNickname }}</div>
     </el-header>
-    <el-main class="kefu-content overflow-visible">
+    <el-main class="kefu-content">
       <el-scrollbar ref="scrollbarRef" always @scroll="handleScroll">
         <div v-if="refreshContent" ref="innerRef" class="w-[100%] px-10px">
           <!-- 消息列表 -->
@@ -318,6 +318,8 @@ const scrollToBottom = async () => {
   showNewMessageTip.value = false
   // 2.2 消息已读
   await KeFuMessageApi.updateKeFuMessageReadStatus(conversation.value.id)
+  // Clear the current operator's unread badge immediately; the WebSocket event keeps other admins in sync.
+  await kefuStore.updateConversationStatus(conversation.value.id)
 }
 
 /** 查看新消息 */
@@ -374,8 +376,14 @@ const showTime = computed(() => (item: KeFuMessageRespVO, index: number) => {
 <style lang="scss" scoped>
 .kefu {
   position: relative;
+  display: flex;
   width: calc(100% - 300px - 260px);
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   background-color: var(--app-content-bg-color);
+  flex-direction: column;
 
   &::after {
     position: absolute;
@@ -415,9 +423,15 @@ const showTime = computed(() => (item: KeFuMessageRespVO, index: number) => {
   &-content {
     position: relative;
     width: 100%;
-    height: 100%;
+    min-height: 0;
+    height: auto;
     padding: 10px;
     margin: 0;
+    overflow: hidden;
+
+    :deep(.el-scrollbar) {
+      height: 100%;
+    }
 
     .newMessageTip {
       position: absolute;
@@ -491,6 +505,7 @@ const showTime = computed(() => (item: KeFuMessageRespVO, index: number) => {
     padding: 0;
     margin: 0;
     flex-direction: column;
+    flex: 0 0 auto;
 
     &::before {
       position: absolute;

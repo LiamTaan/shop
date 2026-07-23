@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 public class AiProductSearchRespVO {
 
     private Long id;
+    private Long spuId;
     private String name;
     private String introduction;
     private String picUrl;
@@ -17,4 +18,3 @@ public class AiProductSearchRespVO {
     private Integer salesCount;
 
 }
-

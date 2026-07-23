@@ -40,6 +40,22 @@ def test_memory_skips_disabled_context(tmp_path) -> None:
     assert memory.get_recent(current) == []
 
 
+def test_memory_keeps_assistant_tool_results(tmp_path) -> None:
+    memory = ConversationMemory(str(tmp_path / "memory.db"))
+    current = request("conversation-a")
+    tool_results = [{"type": "ops_product_list", "items": [{"spuId": 20017}]}]
+
+    memory.append_exchange(current, "热销商品", "为你找到以下商品", tool_results)
+
+    messages = memory.get_messages(
+        tenant_id=1,
+        user_id=100,
+        user_type="APP",
+        conversation_id="conversation-a",
+    )
+    assert messages[1]["toolResults"] == tool_results
+
+
 def test_conversation_list_rename_delete(tmp_path) -> None:
     memory = ConversationMemory(str(tmp_path / "memory.db"))
     current = request("conversation-a")

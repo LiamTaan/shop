@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 public class AiOpsProductRespVO {
 
     private Long id;
+    private Long spuId;
     private String name;
     private String picUrl;
     private Integer price;

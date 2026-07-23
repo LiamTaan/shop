@@ -169,8 +169,14 @@ const getUserData = async () => {
 <style lang="scss" scoped>
 .kefu {
   position: relative;
+  display: flex;
   width: 300px !important;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   background-color: var(--app-content-bg-color);
+  flex: 0 0 300px;
+  flex-direction: column;
 
   &::after {
     position: absolute;
@@ -232,9 +238,15 @@ const getUserData = async () => {
   &-content {
     position: relative;
     width: 100%;
-    height: 100%;
+    min-height: 0;
+    height: auto;
     padding: 0;
     margin: 0;
+    overflow: hidden;
+
+    :deep(.el-scrollbar) {
+      height: 100%;
+    }
   }
 
   &-tabs {

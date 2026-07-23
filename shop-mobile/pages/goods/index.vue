@@ -145,7 +145,7 @@
             <detail-cell-sku
               v-model="state.selectedSku.goods_sku_text"
               :sku="state.selectedSku"
-              @tap="state.showSelectSku = true"
+              @tap="openSkuSelector()"
             />
           </view>
 
@@ -177,16 +177,10 @@
         <!-- 详情 tabbar -->
         <detail-tabbar v-model="state.goodsInfo">
           <view class="buy-box ss-flex ss-col-center ss-p-r-20" v-if="state.goodsInfo.stock > 0">
-            <button
-              class="ss-reset-button add-btn ui-Shadow-Main"
-              @tap="state.showSelectSku = true"
-            >
+            <button class="ss-reset-button add-btn ui-Shadow-Main" @tap="openSkuSelector('cart')">
               加入购物车
             </button>
-            <button
-              class="ss-reset-button buy-btn ui-Shadow-Main"
-              @tap="state.showSelectSku = true"
-            >
+            <button class="ss-reset-button buy-btn ui-Shadow-Main" @tap="openSkuSelector('buy')">
               立即购买
             </button>
           </view>
@@ -263,6 +257,19 @@
   function onSkuChange(e) {
     state.selectedSku = e;
     state.settlementSku = e;
+  }
+
+  function openSkuSelector(action) {
+    // 单规格商品不应要求用户在没有属性选项的弹窗中再次确认。
+    if (!state.goodsInfo.specType && state.selectedSku?.id) {
+      if (action === 'cart') {
+        onAddCart(state.selectedSku);
+      } else if (action === 'buy') {
+        onBuy(state.selectedSku);
+      }
+      return;
+    }
+    state.showSelectSku = true;
   }
 
   // 添加购物车

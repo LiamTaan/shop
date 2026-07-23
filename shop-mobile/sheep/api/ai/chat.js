@@ -21,9 +21,10 @@ function parseEvents(state, chunk, onEvent) {
   });
 }
 
-function decodeChunk(buffer) {
+function decodeChunk(state, buffer) {
   if (typeof TextDecoder !== 'undefined') {
-    return new TextDecoder('utf-8').decode(buffer);
+    state.decoder ||= new TextDecoder('utf-8');
+    return state.decoder.decode(buffer, { stream: true });
   }
   const bytes = new Uint8Array(buffer);
   let encoded = '';
@@ -75,7 +76,7 @@ const ChatApi = {
       Authorization: token?.startsWith('Bearer ') ? token : `Bearer ${token}`,
       'tenant-id': `${getTenantId() || ''}`,
     };
-    const state = { buffer: '' };
+    const state = { buffer: '', decoder: null };
 
     // #ifdef H5
     const controller = new AbortController();
@@ -86,7 +87,8 @@ const ChatApi = {
       signal: controller.signal,
     })
       .then(async (response) => {
-        if (!response.ok || !response.body) throw new Error(`AI request failed: ${response.status}`);
+        if (!response.ok || !response.body)
+          throw new Error(`AI request failed: ${response.status}`);
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         while (true) {
@@ -94,6 +96,7 @@ const ChatApi = {
           if (done) break;
           parseEvents(state, decoder.decode(value, { stream: true }), onEvent);
         }
+        parseEvents(state, decoder.decode(), onEvent);
         onClose?.();
       })
       .catch((error) => {
@@ -113,7 +116,7 @@ const ChatApi = {
       fail: (error) => onError?.(error),
     });
     task.onChunkReceived?.(({ data: chunk }) => {
-      parseEvents(state, decodeChunk(chunk), onEvent);
+      parseEvents(state, decodeChunk(state, chunk), onEvent);
     });
     return { abort: () => task.abort() };
     // #endif

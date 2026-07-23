@@ -10,6 +10,7 @@ import java.util.List;
 public class AiProductDetailRespVO {
 
     private Long id;
+    private Long spuId;
     private String name;
     private String introduction;
     private String description;

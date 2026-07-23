@@ -118,6 +118,24 @@ WHERE `id` IN (SELECT `id` FROM `tmp_mall_base_disabled_menu_ids`);
 
 DROP TEMPORARY TABLE IF EXISTS `tmp_mall_base_disabled_menu_ids`;
 
+UPDATE `system_menu`
+SET `name` = '商城 AI 助手',
+    `permission` = '',
+    `type` = 2,
+    `sort` = 90,
+    `parent_id` = 2362,
+    `path` = 'ai-assistant',
+    `icon` = 'ep:magic-stick',
+    `component` = 'ai/chat/index/index.vue',
+    `component_name` = 'AiChat',
+    `status` = 0,
+    `visible` = b'1',
+    `keep_alive` = b'1',
+    `always_show` = b'1',
+    `updater` = 'local-bootstrap',
+    `deleted` = b'0'
+WHERE `id` = 2759;
+
 UPDATE `system_notice`
 SET `title` = '商城底座通知',
     `content` = '<p>本地商城底座已接入管理端、移动端和后端服务。</p>',

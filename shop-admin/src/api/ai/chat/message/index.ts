@@ -34,10 +34,13 @@ export interface ChatMessageVO {
   createTime: Date // 创建时间
   roleAvatar: string // 角色头像
   userAvatar: string // 用户头像
+  toolResults?: ShopAssistantEvent[] // AI tool card data
 }
 
 export interface AiProductItem {
   id: number
+  /** SPU id used by the admin product detail route. */
+  spuId?: number
   name: string
   introduction?: string
   picUrl?: string

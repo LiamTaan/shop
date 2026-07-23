@@ -335,23 +335,28 @@ const handleStatus02Change = async (row: any, newStatus: number) => {
 
 /** 更新上架/下架状态 */
 const handleStatusChange = async (row: any) => {
+  const previousStatus =
+    row.status === ProductSpuStatusEnum.DISABLE.status
+      ? ProductSpuStatusEnum.ENABLE.status
+      : ProductSpuStatusEnum.DISABLE.status
+  const text = row.status ? '上架' : '下架'
   try {
     // 二次确认
-    const text = row.status ? '上架' : '下架'
     await message.confirm(`确认要${text}"${row.name}"吗？`)
     // 发起修改
     await ProductSpuApi.updateStatus({ id: row.id, status: row.status })
-    message.success(text + '成功')
-    // 刷新 tabs 数据
-    await getTabsCount()
-    // 刷新列表
-    await getList()
   } catch {
-    // 异常时，需要重置回之前的值
-    row.status =
-      row.status === ProductSpuStatusEnum.DISABLE.status
-        ? ProductSpuStatusEnum.ENABLE.status
-        : ProductSpuStatusEnum.DISABLE.status
+    // 开关的 v-model 已先更新；仅在确认取消或状态保存失败时回滚。
+    row.status = previousStatus
+    return
+  }
+
+  message.success(text + '成功')
+  try {
+    // 状态已保存成功后，刷新失败不能再把开关回滚成旧状态。
+    await Promise.all([getTabsCount(), getList()])
+  } catch {
+    message.warning('状态已更新，列表刷新失败，请手动刷新页面')
   }
 }
 
